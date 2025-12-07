@@ -70,7 +70,9 @@ fun CountdownApp(repository: EventRepository) {
         },
         onDeleteEvent = { eventUi ->
             viewModel.deleteEvent(eventUi)
+        },
+        onUpdateEvent = { updatedUi ->
+            viewModel.updateEvent(updatedUi)
         }
-        // más adelante añadimos edición
     )
 }

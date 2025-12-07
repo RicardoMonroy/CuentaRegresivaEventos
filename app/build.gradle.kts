@@ -69,4 +69,7 @@ dependencies {
 
     // ViewModel para Compose (si no estaba ya incluido en libs)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.0")
+
+    // Coil para cargar imágenes en Compose
+    implementation("io.coil-kt:coil-compose:2.7.0")
 }
