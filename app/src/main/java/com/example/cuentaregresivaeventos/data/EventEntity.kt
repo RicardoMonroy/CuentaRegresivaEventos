@@ -10,6 +10,6 @@ data class EventEntity(
     val place: String,
     val city: String,
     val description: String?,
-    val imageUri: String?, // por ahora solo String
+    val imagePath: String?,
     val dateTimeMillis: Long
 )

@@ -26,6 +26,7 @@ import coil.compose.AsyncImage
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.filled.Edit
+import android.content.Context
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,8 +78,11 @@ fun CountdownScreen(
                 }
             }
 
+            val context = LocalContext.current
+
             if (showAddDialog) {
                 AddEventDialog(
+                    context = context,
                     onSave = { title, place, city, description, dateTimeMillis, imageUri ->
                         onAddEvent(title, place, city, description, imageUri, dateTimeMillis)
                         showAddDialog = false
@@ -105,9 +109,9 @@ fun EventItem(
             .clickable { showDetails = true }
     ) {
         Box {
-            if (!event.imageUri.isNullOrEmpty()) {
+            if (!event.imagePath.isNullOrEmpty()) {
                 AsyncImage(
-                    model = event.imageUri,
+                    model = event.imagePath,
                     contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -141,6 +145,11 @@ fun EventItem(
                         text = event.remainingText,
                         color = Color.White
                     )
+                    Text(
+                        text = "Fecha: " + java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(java.util.Date(event.dateTimeMillis)),
+                        color = Color.White,
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
                 IconButton(onClick = onDelete) {
                     Icon(
@@ -172,6 +181,7 @@ fun EventItem(
 
 @Composable
 fun AddEventDialog(
+    context: Context,
     onSave: (String, String, String, String?, Long, String?) -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -192,8 +202,11 @@ fun AddEventDialog(
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: android.net.Uri? ->
-            imageUri = uri
+            if (uri != null) {
+                imageUri = uri
+            }
         }
+
 
     fun openDatePicker() {
         val year = calendar.get(Calendar.YEAR)
@@ -307,9 +320,13 @@ fun AddEventDialog(
                 }
 
                 if (imageUri != null) {
-                    Text(
-                        text = "Imagen seleccionada",
-                        style = MaterialTheme.typography.bodySmall
+                    AsyncImage(
+                        model = imageUri,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentScale = ContentScale.Crop
                     )
                 }
 
@@ -371,9 +388,9 @@ fun EventDetailsDialog(
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (!event.imageUri.isNullOrEmpty()) {
+                if (!event.imagePath.isNullOrEmpty()) {
                     AsyncImage(
-                        model = event.imageUri,
+                        model = event.imagePath,
                         contentDescription = null,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -424,13 +441,13 @@ fun EditEventDialog(
     }
     var selectedDateTimeMillis by remember { mutableStateOf(event.dateTimeMillis) }
 
-    var imageUri by remember { mutableStateOf(event.imageUri?.let { android.net.Uri.parse(it) }) }
+    var imagePath by remember { mutableStateOf(event.imagePath) }
 
     val imagePickerLauncher =
         rememberLauncherForActivityResult(
             contract = ActivityResultContracts.GetContent()
         ) { uri: android.net.Uri? ->
-            imageUri = uri
+            imagePath = uri?.toString()
         }
 
     fun openDatePicker() {
@@ -485,7 +502,7 @@ fun EditEventDialog(
                                 description = description.text
                                     .takeIf { it.isNotBlank() }
                                     ?.trim(),
-                                imageUri = imageUri?.toString(),
+                                imagePath = imagePath,
                                 dateTimeMillis = selectedDateTimeMillis
                             )
                         )
@@ -532,10 +549,21 @@ fun EditEventDialog(
 
                 Button(onClick = { imagePickerLauncher.launch("image/*") }) {
                     Text(
-                        if (imageUri == null)
+                        if (imagePath == null)
                             "Seleccionar imagen (flyer)"
                         else
                             "Cambiar imagen seleccionada"
+                    )
+                }
+
+                if (imagePath != null) {
+                    AsyncImage(
+                        model = imagePath,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(100.dp),
+                        contentScale = ContentScale.Crop
                     )
                 }
 

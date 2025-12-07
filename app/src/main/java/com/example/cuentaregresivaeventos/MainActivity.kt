@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CountdownApp(repository = repository)
+                    CountdownApp(repository = repository, application = application)
                 }
             }
         }
@@ -44,12 +44,12 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun CountdownApp(repository: EventRepository) {
-    // Factory para el ViewModel con dependencia repository
+fun CountdownApp(repository: EventRepository, application: android.app.Application) {
+    // Factory para el ViewModel con dependencia repository y application
     val factory = object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             @Suppress("UNCHECKED_CAST")
-            return EventViewModel(repository) as T
+            return EventViewModel(application, repository) as T
         }
     }
 
