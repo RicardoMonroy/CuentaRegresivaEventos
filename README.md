@@ -15,7 +15,7 @@ Aplicación Android para gestionar eventos con conteo regresivo, construida con 
 
 Puedes instalar la app directamente en tu dispositivo Android descargando el APK:
 
-- [Descargar APK](./releases/cuenta-regresiva-eventos-debug.apk)
+- [Descargar APK](./releases/download/v0.1.0/app-debug.apk)
 
 Activa la instalación de orígenes desconocidos en tu dispositivo si es necesario y abre el archivo APK para instalarlo.
 
