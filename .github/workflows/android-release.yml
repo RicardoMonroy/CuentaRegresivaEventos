@@ -28,13 +28,31 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
-    - name: Build Release APK
-      run: |
-        ./gradlew assembleRelease --no-daemon --stacktrace
-        
-    - name: Build Debug APK  
-      run: |
-        ./gradlew assembleDebug --no-daemon --stacktrace
+    - name: Cache Gradle dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Build Release APK (with retry)
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 15
+        max_attempts: 3
+        command: |
+          ./gradlew assembleRelease --no-daemon --refresh-dependencies --stacktrace
+          
+    - name: Build Debug APK (with retry)  
+      uses: nick-invision/retry@v2
+      with:
+        timeout_minutes: 10
+        max_attempts: 2
+        command: |
+          ./gradlew assembleDebug --no-daemon --refresh-dependencies --stacktrace
       
     - name: Get version name
       id: version
