@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cuentaregresivaeventos.data.EventEntity
 import com.example.cuentaregresivaeventos.data.EventRepository
+import com.example.cuentaregresivaeventos.util.DateFormatter
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,7 +21,9 @@ data class EventUi(
     val description: String?,
     val imagePath: String?,
     val dateTimeMillis: Long,
-    val remainingText: String // texto ya calculado para mostrar
+    val remainingText: String, // texto ya calculado para mostrar
+    val formattedDate: String, // fecha formateada en español
+    val formattedDateTime: String // fecha y hora formateadas en español
 )
 
 class EventViewModel(
@@ -58,7 +61,7 @@ class EventViewModel(
             val remaining = if (diff <= 0) {
                 "Evento pasado"
             } else {
-                millisToCountdown(diff)
+                DateFormatter.formatCountdownSpanish(entity.dateTimeMillis)
             }
             EventUi(
                 id = entity.id,
@@ -68,19 +71,13 @@ class EventViewModel(
                 description = entity.description,
                 imagePath = entity.imagePath,
                 dateTimeMillis = entity.dateTimeMillis,
-                remainingText = remaining
+                remainingText = remaining,
+                formattedDate = DateFormatter.formatDateSpanish(entity.dateTimeMillis),
+                formattedDateTime = DateFormatter.formatDateTimeSpanish(entity.dateTimeMillis)
             )
         }
     }
 
-    private fun millisToCountdown(millis: Long): String {
-        val totalSeconds = millis / 1000
-        val days = totalSeconds / (24 * 3600)
-        val hours = (totalSeconds % (24 * 3600)) / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        val seconds = totalSeconds % 60
-        return "${days}d ${hours}h ${minutes}m ${seconds}s"
-    }
 
     private fun copyImageToInternal(uriString: String): String? {
         return try {

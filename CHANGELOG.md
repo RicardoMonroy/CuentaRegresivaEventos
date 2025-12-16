@@ -1,0 +1,133 @@
+# 📋 Changelog - Cuenta Regresiva Eventos
+
+Todas las modificaciones importantes a este proyecto serán documentadas en este archivo.
+
+## [1.1.0] - 2025-12-16
+
+### ✨ Nuevas Funcionalidades
+
+#### 🎨 **Widget Mejorado**
+- **Widget con scroll**: Implementada funcionalidad de scroll para mostrar múltiples eventos en el widget
+- **Colores personalizados**: 
+  - Fondo de elementos: `#383434`
+  - Caja de fecha: `#A69D9D`
+- **Diseño de fecha optimizado**:
+  - Días mostrados en fuente más grande
+  - Meses y años debajo de los días
+  - Caja de fecha en el lado derecho del widget
+- **Formato de fecha en español**: Implementado formato completamente localizado con nombres de meses en español
+
+#### 📱 **Modal Dialog Mejorado**
+- **Botón de edición reposicionado**: Movido desde la parte superior al área de acciones inferior
+- **Visualización de imagen en pantalla completa**: Nueva funcionalidad para ver imágenes de eventos en fullscreen
+- **Organización mejorada**: Mejor estructura visual y espaciado de elementos
+- **Iconos actualizados**: Reemplazados iconos no disponibles por Material Icons compatibles
+
+#### 🛠️ **Mejoras Técnicas**
+- **Java 17**: Migración completa a Java 17 para mejor compatibilidad
+- **DateFormatter personalizado**: Nueva clase para formateo de fechas en español
+- **Manejo de errores robusto**: Implementado manejo de errores en widget y operaciones de base de datos
+- **Estados de fallback**: Agregados estados de carga y error en el widget
+
+### 🔧 **Mejoras Técnicas**
+
+#### 🏗️ **Arquitectura**
+- **Modularización mejorada**: Separación clara entre UI, data y utilidades
+- **Coroutines optimizadas**: Mejor manejo de operaciones asíncronas
+- **Repository pattern**: Implementación robusta del patrón repository
+
+#### 📦 **Dependencias**
+- **Kotlin 2.0**: Actualización a la última versión de Kotlin
+- **Jetpack Compose**: Optimizaciones en componentes UI
+- **Material Icons**: Selección de iconos compatibles
+
+### 🐛 **Correcciones de Bugs**
+
+#### 🔨 **Compilación**
+- **Errores de Java 25**: Resuelto conflicto con Java 25.0.1 (versión incompatible)
+- **Errores de iconos**: Solucionados errores "Unresolved reference" para Material icons
+- **Type mismatch**: Corregidos errores Long vs Int en DateFormatter
+- **Gradle sync**: Mejorada sincronización de dependencias
+
+#### 📱 **Widget**
+- **"Can't load widget"**: Resuelto problema de carga del widget
+- **ScrollView issues**: Corregido problema con ScrollView en widget
+- **Size constraints**: Ajustados tamaños de widget para mejor visualización
+
+### 📋 **Archivos Modificados/Creados**
+
+#### ✨ **Nuevos Archivos**
+- `.github/workflows/android-ci.yml` - Pipeline de CI/CD para compilación automática
+- `.github/workflows/android-release.yml` - Pipeline de releases automáticas
+- `app/src/main/java/com/example/cuentaregresivaeventos/util/DateFormatter.kt` - Utilidades de formateo de fecha
+- `CONFIGURACION_ANDROID_STUDIO.md` - Guía de configuración de Android Studio
+- `COMANDOS_UTILES.md` - Comandos útiles para desarrollo
+- `setup_env.sh` - Script de configuración automática del entorno
+- `CHANGELOG.md` - Este archivo de cambios
+
+#### 🔄 **Archivos Modificados**
+- `README.md` - Documentación completa actualizada con badges y información detallada
+- `app/src/main/res/layout/widget_events.xml` - Layout rediseñado del widget
+- `app/src/main/java/com/example/cuentaregresivaeventos/EventsWidgetProvider.kt` - Lógica mejorada del widget
+- `app/src/main/java/com/example/cuentaregresivaeventos/ui/screens/CountdownScreen.kt` - Modal dialog mejorado
+- `app/src/main/res/xml/events_widget_info.xml` - Configuración del widget
+- `gradle.properties` - Configuración de Java 17
+
+#### 🗑️ **Archivos Eliminados**
+- `app/src/main/java/com/example/cuentaregresivaeventos/adapter/WidgetEventAdapter.kt` - Removido (causaba conflictos de tipos)
+
+### 🎯 **Mejoras de Performance**
+- **Compilación más rápida**: Optimizado tiempo de compilación con Java 17
+- **Widget responsivo**: Mejor rendimiento del widget con scroll
+- **Memoria optimizada**: Reducido uso de memoria en operaciones de base de datos
+- **UI fluida**: Mejor responsividad en animaciones y transiciones
+
+### 📱 **Compatibilidad**
+- **Android SDK**: Compatible con API 24+ (Android 7.0+)
+- **Material Design 3**: Implementación completa de Material You
+- **Spanish Localization**: Soporte completo para formato de fecha en español
+- **Accesibilidad**: Mejorado soporte para lectores de pantalla
+
+### 🚀 **CI/CD Implementado**
+- **GitHub Actions**: Pipeline completo de integración continua
+- **Compilación automática**: Build automático en cada push
+- **Testing automatizado**: Tests unitarios y de instrumentación
+- **Releases automáticas**: Generación automática de releases en GitHub
+- **Artifact upload**: APKs subidos automáticamente como artifacts
+
+## [1.0.0] - Versión Inicial
+
+### ✨ Funcionalidades Base
+- Lista de eventos con countdown en tiempo real
+- CRUD completo de eventos
+- Almacenamiento local con Room
+- Modal dialog con detalles de eventos
+- Widget básico de pantalla de inicio
+- Soporte para imágenes de eventos
+
+### 🏗️ Tecnologías Base
+- Kotlin con Jetpack Compose
+- Room Database
+- ViewModel + LiveData
+- Material Design 3
+- Coroutines para operaciones asíncronas
+
+---
+
+## 📝 Formato de Changelog
+
+Este changelog sigue el formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y se adhiere al [Versionado Semántico](https://semver.org/lang/es/).
+
+### Tipos de Cambios
+- **✨ Nuevas Funcionalidades** - para nuevas features
+- **🔧 Mejoras** - para cambios en features existentes
+- **🐛 Correcciones** - para bug fixes
+- **🔨 Compilación** - para cambios en herramientas de build
+- **📦 Dependencias** - para actualizaciones de dependencias
+- **🗑️ Removido** - para features removidas
+- **🔒 Seguridad** - para vulnerabilidades corregidas
+
+### Versionado
+- **MAJOR** - Cambios incompatibles en la API
+- **MINOR** - Funcionalidades agregadas de forma compatible
+- **PATCH** - Correcciones de bugs compatibles

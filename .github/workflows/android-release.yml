@@ -1,0 +1,79 @@
+name: Android Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'adoptium'
+        
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+      
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+      
+    - name: Build Debug APK
+      run: ./gradlew assembleDebug
+      
+    - name: Get version name
+      id: version
+      run: echo "version=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+      
+    - name: Upload Release APK
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          app/build/outputs/apk/release/app-release.apk
+          app/build/outputs/apk/debug/app-debug.apk
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        body: |
+          🎉 **Cuenta Regresiva Eventos - Release ${{ github.ref_name }}**
+          
+          📱 **Descargas disponibles:**
+          - `app-release.apk` - Versión de producción
+          - `app-debug.apk` - Versión de desarrollo
+          
+          ✨ **Características incluidas:**
+          - ✅ Widget mejorado con scroll
+          - ✅ Formato de fecha en español
+          - ✅ Modal dialog optimizado
+          - ✅ UI/UX mejorada
+          - ✅ Funcionalidad completa de countdown
+          
+          🛠️ **Compilado con:**
+          - Java 17
+          - Android SDK 34
+          - Kotlin 2.0
+          
+          📋 **Changelog:**
+          ${{ github.event.head_commit.message }}
+          
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

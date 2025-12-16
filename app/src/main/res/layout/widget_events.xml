@@ -3,7 +3,7 @@
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
+    android:background="#000000"
     android:orientation="vertical"
     android:padding="8dp">
 
@@ -11,160 +11,214 @@
         android:id="@+id/widget_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Eventos"
+        android:text="Eventos (Cuenta Regresiva)"
         android:textColor="@android:color/white"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp" />
 
+    <!-- Event 1 -->
     <LinearLayout
-        android:id="@+id/event_1"
+        android:id="@+id/event_1_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:orientation="vertical"
+        android:background="#383434"
+        android:orientation="horizontal"
         android:padding="8dp"
         android:layout_marginBottom="4dp"
         android:visibility="gone">
-        <TextView
-            android:id="@+id/event_1_title"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/event_1_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-        <TextView
-            android:id="@+id/event_1_countdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_1_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_1_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="6dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_1_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
+    <!-- Event 2 -->
     <LinearLayout
-        android:id="@+id/event_2"
+        android:id="@+id/event_2_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:orientation="vertical"
+        android:background="#383434"
+        android:orientation="horizontal"
         android:padding="8dp"
         android:layout_marginBottom="4dp"
         android:visibility="gone">
-        <TextView
-            android:id="@+id/event_2_title"
-            android:layout_width="wrap_content"
+
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/event_2_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-        <TextView
-            android:id="@+id/event_2_countdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_2_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_2_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="6dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_2_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
+    <!-- Event 3 -->
     <LinearLayout
-        android:id="@+id/event_3"
+        android:id="@+id/event_3_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:orientation="vertical"
+        android:background="#383434"
+        android:orientation="horizontal"
         android:padding="8dp"
         android:layout_marginBottom="4dp"
         android:visibility="gone">
-        <TextView
-            android:id="@+id/event_3_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/event_3_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-        <TextView
-            android:id="@+id/event_3_countdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-    </LinearLayout>
 
-    <LinearLayout
-        android:id="@+id/event_4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_marginBottom="4dp"
-        android:visibility="gone">
-        <TextView
-            android:id="@+id/event_4_title"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/event_4_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-        <TextView
-            android:id="@+id/event_4_countdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-    </LinearLayout>
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
 
-    <LinearLayout
-        android:id="@+id/event_5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/darker_gray"
-        android:orientation="vertical"
-        android:padding="8dp"
-        android:layout_marginBottom="4dp"
-        android:visibility="gone">
-        <TextView
-            android:id="@+id/event_5_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-        <TextView
-            android:id="@+id/event_5_date"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-        <TextView
-            android:id="@+id/event_5_countdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/event_3_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_3_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="6dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_3_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
 </LinearLayout>

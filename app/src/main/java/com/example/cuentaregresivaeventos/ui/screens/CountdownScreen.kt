@@ -8,13 +8,21 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.*
+import androidx.compose.ui.window.Dialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.shadow
 import com.example.cuentaregresivaeventos.ui.EventUi
 import java.util.Calendar
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -27,6 +35,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.filled.Edit
 import android.content.Context
+import com.example.cuentaregresivaeventos.util.DateFormatter
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -146,7 +155,7 @@ fun EventItem(
                         color = Color.White
                     )
                     Text(
-                        text = "Fecha: " + java.text.SimpleDateFormat("dd/MM/yyyy HH:mm").format(java.util.Date(event.dateTimeMillis)),
+                        text = "Fecha: " + event.formattedDateTime,
                         color = Color.White,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -356,6 +365,15 @@ fun EventDetailsDialog(
     onEdit: (EventUi) -> Unit
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
+    var showFullImage by remember { mutableStateOf(false) }
+
+    // Image full screen dialog
+    if (showFullImage && !event.imagePath.isNullOrEmpty()) {
+        FullScreenImageDialog(
+            imagePath = event.imagePath!!,
+            onDismiss = { showFullImage = false }
+        )
+    }
 
     if (showEditDialog) {
         EditEventDialog(
@@ -369,49 +387,216 @@ fun EventDetailsDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Cerrar") }
+        title = {
+            Text(
+                text = event.title,
+                style = MaterialTheme.typography.headlineSmall
+            )
         },
-        dismissButton = {
-            TextButton(onClick = onDelete) { Text("Eliminar") }
-        },
-        icon = {
-            IconButton(onClick = { showEditDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Editar"
-                )
-            }
-        },
-        title = { Text(event.title) },
         text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxWidth()
             ) {
+                // Image section
                 if (!event.imagePath.isNullOrEmpty()) {
                     AsyncImage(
                         model = event.imagePath,
-                        contentDescription = null,
+                        contentDescription = "Imagen del evento",
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp),
+                            .height(200.dp)
+                            .clickable { showFullImage = true }
+                            .shadow(4.dp, shape = MaterialTheme.shapes.medium),
                         contentScale = ContentScale.Crop
                     )
+                    
+                    Text(
+                        text = "Toca la imagen para ver en pantalla completa",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
                 }
-                Text("${event.place} - ${event.city}")
-                Text(
-                    "Fecha/hora: " +
-                            java.text.SimpleDateFormat("dd/MM/yyyy HH:mm")
-                                .format(java.util.Date(event.dateTimeMillis))
-                )
-                Text("Cuenta regresiva: ${event.remainingText}")
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                // Location
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Place,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "${event.place} - ${event.city}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                
+                // Date and time
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = event.formattedDateTime,
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                }
+                
+                // Countdown
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Favorite,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = event.remainingText,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                        color = if (event.remainingText.contains("pasado", ignoreCase = true))
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.primary
+                    )
+                }
+                
+                // Description
                 if (!event.description.isNullOrEmpty()) {
-                    Text("Descripción:")
-                    Text(event.description!!)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Descripción:",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = event.description!!,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
+            }
+        },
+        confirmButton = {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextButton(onClick = onDelete) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+                TextButton(onClick = onDismiss) { Text("Cerrar") }
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = { showEditDialog = true },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Editar")
             }
         }
     )
+}
+
+@Composable
+fun FullScreenImageDialog(
+    imagePath: String,
+    onDismiss: () -> Unit
+) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clickable { onDismiss() }
+                .background(Color.Black.copy(alpha = 0.9f)),
+            contentAlignment = Alignment.Center
+        ) {
+            AsyncImage(
+                model = imagePath,
+                contentDescription = "Imagen en pantalla completa",
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentScale = ContentScale.Fit
+            )
+            
+            // Close button
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.TopEnd
+            ) {
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = Modifier
+                        .background(
+                            Color.Black.copy(alpha = 0.7f),
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Cerrar",
+                        tint = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+            
+            // Instructions text
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                Text(
+                    text = "Toca cualquier lugar para cerrar",
+                    color = Color.White,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier
+                        .background(
+                            Color.Black.copy(alpha = 0.7f),
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -429,14 +614,12 @@ fun EditEventDialog(
     val calendar = remember { Calendar.getInstance().apply { timeInMillis = event.dateTimeMillis } }
     var dateText by remember {
         mutableStateOf(
-            java.text.SimpleDateFormat("dd/MM/yyyy")
-                .format(java.util.Date(event.dateTimeMillis))
+            DateFormatter.formatDateSpanish(event.dateTimeMillis)
         )
     }
     var timeText by remember {
         mutableStateOf(
-            java.text.SimpleDateFormat("HH:mm")
-                .format(java.util.Date(event.dateTimeMillis))
+            DateFormatter.formatTimeForWidget(event.dateTimeMillis)
         )
     }
     var selectedDateTimeMillis by remember { mutableStateOf(event.dateTimeMillis) }
