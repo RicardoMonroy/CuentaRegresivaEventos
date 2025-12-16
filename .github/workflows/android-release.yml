@@ -18,7 +18,7 @@ jobs:
       uses: actions/setup-java@v4
       with:
         java-version: '17'
-        distribution: 'adoptium'
+        distribution: 'temurin'
         
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
@@ -66,7 +66,7 @@ jobs:
           - ✅ Funcionalidad completa de countdown
           
           🛠️ **Compilado con:**
-          - Java 17
+          - Java 17 (Temurin)
           - Android SDK 34
           - Kotlin 2.0
           
