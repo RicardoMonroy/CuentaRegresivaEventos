@@ -25,19 +25,16 @@ jobs:
         java -version
         echo "JAVA_HOME: $JAVA_HOME"
         
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: current
-        
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
     - name: Run tests
-      run: ./gradlew test
+      run: |
+        ./gradlew test --no-daemon --stacktrace
       
     - name: Run lint
-      run: ./gradlew lint
+      run: |
+        ./gradlew lint --no-daemon --stacktrace
       
   build:
     runs-on: ubuntu-latest
@@ -58,16 +55,12 @@ jobs:
         java -version
         echo "JAVA_HOME: $JAVA_HOME"
         
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v4
-      with:
-        gradle-version: current
-          
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
           
     - name: Build with Gradle
-      run: ./gradlew assembleRelease
+      run: |
+        ./gradlew assembleRelease --no-daemon --stacktrace
       
     - name: Upload APK
       uses: actions/upload-artifact@v4
