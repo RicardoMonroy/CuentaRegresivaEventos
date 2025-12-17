@@ -1,6 +1,7 @@
 package com.example.cuentaregresivaeventos.ui
 
 import android.app.Application
+import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cuentaregresivaeventos.data.EventEntity
@@ -78,6 +79,11 @@ class EventViewModel(
         }
     }
 
+    // Función para enviar broadcast al widget
+    private fun sendWidgetUpdateBroadcast() {
+        val intent = Intent("com.example.cuentaregresivaeventos.ACTION_EVENTS_CHANGED")
+        application.sendBroadcast(intent)
+    }
 
     private fun copyImageToInternal(uriString: String): String? {
         return try {
@@ -127,6 +133,8 @@ class EventViewModel(
                     dateTimeMillis = dateTimeMillis
                 )
             )
+            // Enviar broadcast para actualizar widget
+            sendWidgetUpdateBroadcast()
         }
     }
 
@@ -148,6 +156,8 @@ class EventViewModel(
                     dateTimeMillis = eventUi.dateTimeMillis
                 )
             )
+            // Enviar broadcast para actualizar widget
+            sendWidgetUpdateBroadcast()
         }
     }
 
@@ -164,6 +174,8 @@ class EventViewModel(
             )
             repository.deleteEvent(entity)
             eventUi.imagePath?.let { deleteImage(it) }
+            // Enviar broadcast para actualizar widget
+            sendWidgetUpdateBroadcast()
         }
     }
 }

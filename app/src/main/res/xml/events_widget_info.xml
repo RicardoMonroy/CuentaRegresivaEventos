@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:minWidth="250dp"
-    android:minHeight="200dp"
+    android:minWidth="300dp"
+    android:minHeight="250dp"
     android:minResizeWidth="250dp"
-    android:minResizeHeight="150dp"
+    android:minResizeHeight="200dp"
+    android:maxWidth="400dp"
+    android:maxHeight="400dp"
     android:resizeMode="horizontal|vertical"
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_events"
     android:previewImage="@drawable/ic_launcher_foreground"
-    android:widgetCategory="home_screen">
+    android:widgetCategory="home_screen"
+    android:description="Widget de eventos con cuenta regresiva automática">
 </appwidget-provider>

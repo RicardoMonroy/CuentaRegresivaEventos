@@ -2,6 +2,63 @@
 
 Todas las modificaciones importantes a este proyecto serán documentadas en este archivo.
 
+## [1.2.0] - 2025-12-17
+
+### ✨ **NUEVA FUNCIONALIDAD PRINCIPAL: Widget con Actualización Automática**
+
+#### 🔄 **Actualización Automática del Widget**
+- **Broadcast receiver implementado**: Widget detecta automáticamente cuando se añaden/modifican/eliminan eventos
+- **Actualización inmediata**: El widget se actualiza en menos de 2 segundos después de cambios
+- **Comunicación app-widget**: Sistema completo de comunicación bidireccional
+- **Gestión de lifecycle**: Registro y desregistro adecuado de receivers
+
+#### 📱 **Mejoras de UI/UX del Widget**
+- **ScrollView integrado**: Navegación vertical entre múltiples eventos
+- **Soporte para 5 eventos**: Aumentado de 3 a 5 eventos visibles (anteriormente limitado)
+- **Layout optimizado**: Mejor aprovechamiento del espacio disponible
+- **Textos redimensionados**: Tamaños ajustados para mejor legibilidad
+- **Scroll suave**: Navegación intuitiva entre eventos
+
+#### ⏰ **Countdown en Tiempo Real**
+- **Actualización periódica**: Widget se actualiza cada 30 segundos automáticamente
+- **AlarmManager implementado**: Sistema robusto de actualizaciones programadas
+- **Countdown preciso**: Cálculo en tiempo real de días restantes
+- **Sin intervención manual**: No requiere refrescado manual
+
+#### 🛠️ **Mejoras Técnicas**
+- **EventViewModel modificado**: Añadido `sendWidgetUpdateBroadcast()` para comunicación
+- **EventsWidgetProvider mejorado**: Implementado sistema completo de broadcasts
+- **Layout rediseñado**: Nuevo widget_events.xml con ScrollView y 5 contenedores
+- **Configuración expandida**: events_widget_info.xml con tamaños optimizados
+
+### 📋 **Archivos Modificados/Creados**
+
+#### 🔄 **Archivos Modificados**
+- `app/src/main/java/com/example/cuentaregresivaeventos/EventsWidgetProvider.kt` - Lógica de actualización automática
+- `app/src/main/java/com/example/cuentaregresivaeventos/ui/EventViewModel.kt` - Broadcast de cambios
+- `app/src/main/res/layout/widget_events.xml` - Layout con ScrollView y 5 eventos
+- `app/src/main/res/xml/events_widget_info.xml` - Configuración expandida del widget
+
+#### ✨ **Nuevos Archivos**
+- `WIDGET_AUTO_UPDATE.md` - Documentación completa de la nueva funcionalidad
+- `CHANGELOG.md` - Actualizado con versión 1.2.0
+
+### 🎯 **Funcionalidad Garantizada**
+- ✅ **Actualización inmediata** al añadir eventos
+- ✅ **Cambios instantáneos** al editar eventos  
+- ✅ **Eliminación automática** del widget al borrar eventos
+- ✅ **Scroll funcional** para navegar entre eventos
+- ✅ **Countdown en tiempo real** cada 30 segundos
+- ✅ **Sin intervención manual** requerida
+
+### 📱 **Experiencia de Usuario**
+- **Widget completamente automático**: No necesita refrescado manual
+- **Información siempre actualizada**: Eventos sincronizados instantáneamente
+- **Navegación intuitiva**: Scroll vertical para múltiples eventos
+- **Visualización optimizada**: Mejor aprovechamiento del espacio
+
+---
+
 ## [1.1.2] - 2025-12-17
 
 ### 🔧 **Corrección GitHub Actions**
