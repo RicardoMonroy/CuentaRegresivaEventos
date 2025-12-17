@@ -1,0 +1,187 @@
+# 🚀 Guía de Compilación Manual - Cuenta Regresiva Eventos
+
+## 📋 Compilación Manual (Recomendado)
+
+### 1. **Verificar Requisitos**
+
+```bash
+# Verificar Java 17
+java -version
+# Debe mostrar Java 17 o superior
+
+# Verificar Android SDK
+echo $ANDROID_HOME
+# Debe apuntar a tu SDK de Android (ej: ~/Android/Sdk)
+```
+
+### 2. **Ejecutar Script Automático**
+
+```bash
+# Dar permisos de ejecución
+chmod +x compile_manually.sh
+
+# Ejecutar compilación
+./compile_manually.sh
+```
+
+### 3. **Compilación Manual (Alternativa)**
+
+```bash
+# Limpiar build anterior
+./gradlew clean
+
+# Compilar Debug APK
+./gradlew assembleDebug
+
+# Compilar Release APK
+./gradlew assembleRelease
+```
+
+### 4. **Verificar APKs Generados**
+
+```bash
+# Verificar APKs creados
+ls -la app/build/outputs/apk/debug/app-debug.apk
+ls -la app/build/outputs/apk/release/app-release.apk
+```
+
+### 5. **Subir a GitHub Releases**
+
+#### Opción A: GitHub Web Interface
+1. Ve a: https://github.com/RicardoMonroy/CuentaRegresivaEventos/releases
+2. Clic en **"Create a new release"**
+3. **Tag version**: `v0.2.2`
+4. **Release title**: `Release v0.2.2`
+5. **Description**: 
+   ```
+   🎉 **Cuenta Regresiva Eventos - Release v0.2.2**
+   
+   📱 **Descargas disponibles:**
+   - `app-release.apk` - Versión de producción
+   - `app-debug.apk` - Versión de desarrollo
+   
+   ✨ **Características incluidas:**
+   - ✅ Widget mejorado con scroll
+   - ✅ Formato de fecha en español
+   - ✅ Modal dialog optimizado
+   - ✅ UI/UX mejorada
+   - ✅ Funcionalidad completa de countdown
+   
+   🛠️ **Compilado con:**
+   - Java 17
+   - Android SDK 34
+   - Kotlin 2.0
+   ```
+6. **Arrastra los APKs** a la zona de "attach binaries"
+7. Clic en **"Publish release"**
+
+#### Opción B: GitHub CLI
+```bash
+# Instalar GitHub CLI si no lo tienes
+# macOS: brew install gh
+# Ubuntu: sudo apt install gh
+
+# Crear release con APKs
+gh release create v0.2.2 \
+  app/build/outputs/apk/debug/app-debug.apk \
+  app/build/outputs/apk/release/app-release.apk \
+  --title "Release v0.2.2" \
+  --notes "🎉 Cuenta Regresiva Eventos - Release v0.2.2
+
+📱 Descargas disponibles:
+- app-release.apk - Versión de producción  
+- app-debug.apk - Versión de desarrollo
+
+✨ Características incluidas:
+- ✅ Widget mejorado con scroll
+- ✅ Formato de fecha en español
+- ✅ Modal dialog optimizado
+- ✅ UI/UX mejorada
+- ✅ Funcionalidad completa de countdown"
+```
+
+---
+
+## 🔄 Forzar GitHub Actions (Último Intento)
+
+### Método 1: Trigger Manual
+```bash
+# Push forzado para activar GitHub Actions
+git push origin master --force-with-lease
+git push origin v0.2.2 --force-with-lease
+```
+
+### Método 2: GitHub CLI
+```bash
+# Crear release directamente con GitHub CLI
+gh release create v0.2.2 \
+  --draft=false \
+  --prerelease=false \
+  --notes "Release v0.2.2 - Widget mejorado y formato español"
+```
+
+### Método 3: Activación Manual en GitHub
+1. Ve a: https://github.com/RicardoMonroy/CuentaRegresivaEventos/actions
+2. Busca **"Android Release"**
+3. Clic en **"Run workflow"**
+4. Selecciona branch `master` y tag `v0.2.2`
+5. Clic **"Run workflow"**
+
+---
+
+## 🛠️ Solución de Problemas
+
+### Error: Java Version
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install openjdk-17-jdk
+
+# macOS
+brew install openjdk@17
+
+# Configurar JAVA_HOME
+export JAVA_HOME=/usr/lib/jvm/java-17-openjdk  # Linux
+export JAVA_HOME=/opt/homebrew/opt/openjdk@17  # macOS
+```
+
+### Error: ANDROID_HOME
+```bash
+# Linux/macOS
+export ANDROID_HOME=$HOME/Android/Sdk
+export PATH=$PATH:$ANDROID_HOME/tools:$ANDROID_HOME/platform-tools
+```
+
+### Error: Gradle Permission
+```bash
+chmod +x gradlew
+```
+
+### Error: Dependencies
+```bash
+./gradlew --refresh-dependencies
+```
+
+---
+
+## 📱 Instalación en Dispositivo
+
+```bash
+# Instalar Debug APK en dispositivo conectado
+./gradlew installDebug
+
+# O manualmente
+adb install app/build/outputs/apk/debug/app-debug.apk
+```
+
+---
+
+## 🎯 Resultado Final
+
+Una vez completado tendrás:
+- ✅ APKs compilados localmente
+- ✅ Release creada en GitHub
+- ✅ APKs descargables para usuarios
+- ✅ Versión funcional de la app
+
+**¡Listo para distribuir!** 🚀
