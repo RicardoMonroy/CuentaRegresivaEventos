@@ -17,359 +17,460 @@
         android:textStyle="bold"
         android:layout_marginBottom="8dp" />
 
-    <ScrollView
+    <!-- Event 1 -->
+    <LinearLayout
+        android:id="@+id/event_1_container"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:scrollbars="vertical">
+        android:layout_height="wrap_content"
+        android:background="#383434"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="gone">
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
 
-            <!-- Event 1 -->
-            <LinearLayout
-                android:id="@+id/event_1_container"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/event_1_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#383434"
-                android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_marginBottom="4dp"
-                android:visibility="gone">
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:paddingEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/event_1_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:maxLines="2"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/event_1_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#A69D9D"
-                    android:orientation="vertical"
-                    android:padding="4dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/event_1_days"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:gravity="center" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="días"
-                        android:textColor="#000000"
-                        android:textSize="8sp"
-                        android:gravity="center"
-                        android:layout_marginTop="1dp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Event 2 -->
-            <LinearLayout
-                android:id="@+id/event_2_container"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/event_1_date"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#383434"
-                android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_marginBottom="4dp"
-                android:visibility="gone">
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
 
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:paddingEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/event_2_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:maxLines="2"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/event_2_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#A69D9D"
-                    android:orientation="vertical"
-                    android:padding="4dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/event_2_days"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:gravity="center" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="días"
-                        android:textColor="#000000"
-                        android:textSize="8sp"
-                        android:gravity="center"
-                        android:layout_marginTop="1dp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Event 3 -->
-            <LinearLayout
-                android:id="@+id/event_3_container"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/event_1_location"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#383434"
-                android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_marginBottom="4dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:paddingEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/event_3_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:maxLines="2"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/event_3_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#A69D9D"
-                    android:orientation="vertical"
-                    android:padding="4dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/event_3_days"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:gravity="center" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="días"
-                        android:textColor="#000000"
-                        android:textSize="8sp"
-                        android:gravity="center"
-                        android:layout_marginTop="1dp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Event 4 -->
-            <LinearLayout
-                android:id="@+id/event_4_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#383434"
-                android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_marginBottom="4dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:paddingEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/event_4_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:maxLines="2"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/event_4_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#A69D9D"
-                    android:orientation="vertical"
-                    android:padding="4dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/event_4_days"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:gravity="center" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="días"
-                        android:textColor="#000000"
-                        android:textSize="8sp"
-                        android:gravity="center"
-                        android:layout_marginTop="1dp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <!-- Event 5 -->
-            <LinearLayout
-                android:id="@+id/event_5_container"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#383434"
-                android:orientation="horizontal"
-                android:padding="8dp"
-                android:layout_marginBottom="4dp"
-                android:visibility="gone">
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:orientation="vertical"
-                    android:paddingEnd="8dp">
-
-                    <TextView
-                        android:id="@+id/event_5_title"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:maxLines="2"
-                        android:ellipsize="end" />
-
-                    <TextView
-                        android:id="@+id/event_5_date"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#CCCCCC"
-                        android:textSize="12sp"
-                        android:layout_marginTop="2dp" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:background="#A69D9D"
-                    android:orientation="vertical"
-                    android:padding="4dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/event_5_days"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="#000000"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:gravity="center" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="días"
-                        android:textColor="#000000"
-                        android:textSize="8sp"
-                        android:gravity="center"
-                        android:layout_marginTop="1dp" />
-
-                </LinearLayout>
-
-            </LinearLayout>
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:layout_marginTop="1dp" />
 
         </LinearLayout>
 
-    </ScrollView>
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_1_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Event 2 -->
+    <LinearLayout
+        android:id="@+id/event_2_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#383434"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_2_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_2_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/event_2_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_2_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Event 3 -->
+    <LinearLayout
+        android:id="@+id/event_3_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#383434"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_3_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_3_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/event_3_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_3_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Event 4 -->
+    <LinearLayout
+        android:id="@+id/event_4_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#383434"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_4_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_4_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/event_4_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_4_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Event 5 -->
+    <LinearLayout
+        android:id="@+id/event_5_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#383434"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_5_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_5_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/event_5_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_5_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- Event 6 -->
+    <LinearLayout
+        android:id="@+id/event_6_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#383434"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:layout_marginBottom="4dp"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:paddingEnd="8dp">
+
+            <TextView
+                android:id="@+id/event_6_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/event_6_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#CCCCCC"
+                android:textSize="12sp"
+                android:layout_marginTop="2dp" />
+
+            <TextView
+                android:id="@+id/event_6_location"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#AAAAAA"
+                android:textSize="10sp"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="#A69D9D"
+            android:orientation="vertical"
+            android:padding="4dp"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/event_6_days"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="días"
+                android:textColor="#000000"
+                android:textSize="8sp"
+                android:gravity="center"
+                android:layout_marginTop="1dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

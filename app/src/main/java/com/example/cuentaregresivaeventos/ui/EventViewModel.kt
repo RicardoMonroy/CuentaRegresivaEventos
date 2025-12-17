@@ -82,7 +82,7 @@ class EventViewModel(
     // Función para enviar broadcast al widget
     private fun sendWidgetUpdateBroadcast() {
         val intent = Intent("com.example.cuentaregresivaeventos.ACTION_EVENTS_CHANGED")
-        application.sendBroadcast(intent)
+        getApplication<Application>().sendBroadcast(intent)
     }
 
     private fun copyImageToInternal(uriString: String): String? {

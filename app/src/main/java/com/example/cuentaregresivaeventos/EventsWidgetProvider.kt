@@ -161,7 +161,7 @@ class EventsWidgetProvider : AppWidgetProvider() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val db = EventDatabase.getInstance(context)
-                    val events = db.eventDao().getAllEventsList().take(5) // Limit to 5 events for better visibility
+                    val events = db.eventDao().getAllEventsList().take(6) // Show up to 6 events
     
                     withContext(Dispatchers.Main) {
                         try {
@@ -197,13 +197,15 @@ class EventsWidgetProvider : AppWidgetProvider() {
 
     private fun updateEventsInWidget(views: RemoteViews, events: List<com.example.cuentaregresivaeventos.data.EventEntity>) {
         try {
-            // Define all possible event container IDs and their text view IDs (now 5 events for scroll)
+            // Define all possible event container IDs and their text view IDs (up to 6 events)
+            // Updated to include location text view: [title, date, location, days]
             val eventContainers = arrayOf(
-                R.id.event_1_container to arrayOf(R.id.event_1_title, R.id.event_1_date, R.id.event_1_days),
-                R.id.event_2_container to arrayOf(R.id.event_2_title, R.id.event_2_date, R.id.event_2_days),
-                R.id.event_3_container to arrayOf(R.id.event_3_title, R.id.event_3_date, R.id.event_3_days),
-                R.id.event_4_container to arrayOf(R.id.event_4_title, R.id.event_4_date, R.id.event_4_days),
-                R.id.event_5_container to arrayOf(R.id.event_5_title, R.id.event_5_date, R.id.event_5_days)
+                R.id.event_1_container to arrayOf(R.id.event_1_title, R.id.event_1_date, R.id.event_1_location, R.id.event_1_days),
+                R.id.event_2_container to arrayOf(R.id.event_2_title, R.id.event_2_date, R.id.event_2_location, R.id.event_2_days),
+                R.id.event_3_container to arrayOf(R.id.event_3_title, R.id.event_3_date, R.id.event_3_location, R.id.event_3_days),
+                R.id.event_4_container to arrayOf(R.id.event_4_title, R.id.event_4_date, R.id.event_4_location, R.id.event_4_days),
+                R.id.event_5_container to arrayOf(R.id.event_5_title, R.id.event_5_date, R.id.event_5_location, R.id.event_5_days),
+                R.id.event_6_container to arrayOf(R.id.event_6_title, R.id.event_6_date, R.id.event_6_location, R.id.event_6_days)
             )
 
             // Hide all containers first
@@ -224,6 +226,20 @@ class EventsWidgetProvider : AppWidgetProvider() {
                             "Fecha inválida"
                         }
                         
+                        // Format location with place and city
+                        val locationText = try {
+                            val place = event.place?.trim() ?: ""
+                            val city = event.city?.trim() ?: ""
+                            when {
+                                place.isNotEmpty() && city.isNotEmpty() -> "$place, $city"
+                                place.isNotEmpty() -> place
+                                city.isNotEmpty() -> city
+                                else -> ""
+                            }
+                        } catch (e: Exception) {
+                            ""
+                        }
+                        
                         val daysRemaining = try {
                             val now = System.currentTimeMillis()
                             val diff = event.dateTimeMillis - now
@@ -241,10 +257,11 @@ class EventsWidgetProvider : AppWidgetProvider() {
                         // Show the container
                         views.setViewVisibility(containerId, android.view.View.VISIBLE)
                         
-                        // Set text for title, date, and days
+                        // Set text for title, date, location, and days
                         views.setTextViewText(textIds[0], event.title ?: "Sin título")
                         views.setTextViewText(textIds[1], formattedDate)
-                        views.setTextViewText(textIds[2], daysRemaining)
+                        views.setTextViewText(textIds[2], locationText)
+                        views.setTextViewText(textIds[3], daysRemaining)
                     } catch (e: Exception) {
                         e.printStackTrace()
                         // Skip this event if there's an error
@@ -263,12 +280,14 @@ class EventsWidgetProvider : AppWidgetProvider() {
         views.setViewVisibility(R.id.event_1_container, android.view.View.VISIBLE)
         views.setTextViewText(R.id.event_1_title, "No hay eventos")
         views.setTextViewText(R.id.event_1_date, "Agrega eventos desde la app")
+        views.setTextViewText(R.id.event_1_location, "")
         views.setTextViewText(R.id.event_1_days, "--")
         
-        // Hide all other containers (now 5 events possible)
+        // Hide all other containers (6 events max)
         views.setViewVisibility(R.id.event_2_container, android.view.View.GONE)
         views.setViewVisibility(R.id.event_3_container, android.view.View.GONE)
         views.setViewVisibility(R.id.event_4_container, android.view.View.GONE)
         views.setViewVisibility(R.id.event_5_container, android.view.View.GONE)
+        views.setViewVisibility(R.id.event_6_container, android.view.View.GONE)
     }
 }
