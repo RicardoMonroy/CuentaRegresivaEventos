@@ -10,6 +10,5 @@
     android:updatePeriodMillis="0"
     android:initialLayout="@layout/widget_events"
     android:previewImage="@drawable/ic_launcher_foreground"
-    android:widgetCategory="home_screen"
-    android:description="Widget de eventos con cuenta regresiva automática">
+    android:widgetCategory="home_screen">
 </appwidget-provider>
