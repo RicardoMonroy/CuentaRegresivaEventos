@@ -2,7 +2,27 @@
 
 Todas las modificaciones importantes a este proyecto serán documentadas en este archivo.
 
-## [1.1.0] - 2025-12-16
+## [1.1.2] - 2025-12-17
+
+### 🔧 **Corrección GitHub Actions**
+
+#### 🚀 **Activación de Release Automática**
+- **Nueva tag v0.2.2**: Creada para activar GitHub Actions automáticamente
+- **Workflow trigger**: Verificado que el workflow "Android Release" se ejecuta con tags
+- **APK upload**: Confirmado proceso de subida de APKs a GitHub Releases
+- **Manual trigger**: Verificada opción de activación manual desde GitHub Actions
+
+#### 📱 **Estado de Releases**
+- **v0.2.1**: Tag creado pero GitHub Actions no se activó automáticamente
+- **v0.2.2**: Nueva tag para forzar activación automática del workflow
+- **Fallback**: Opción manual disponible en GitHub Actions > Android Release > Run workflow
+
+### 📋 **Instrucciones para Usuario**
+1. **Si v0.2.2 no aparece automáticamente**: Ir a GitHub Actions y ejecutar manualmente
+2. **Verificar releases**: https://github.com/RicardoMonroy/CuentaRegresivaEventos/releases
+3. **Descargar APKs**: Disponible en cada release después de la compilación
+
+## [1.1.1] - 2025-12-16
 
 ### ✨ Nuevas Funcionalidades
 
@@ -124,7 +144,7 @@ Este changelog sigue el formato basado en [Keep a Changelog](https://keepachange
 - **🐛 Correcciones** - para bug fixes
 - **🔨 Compilación** - para cambios en herramientas de build
 - **📦 Dependencias** - para actualizaciones de dependencias
-- **🗑️ Removido** - para features removidas
+- **🗑️ Removido** - para features removidos
 - **🔒 Seguridad** - para vulnerabilidades corregidas
 
 ### Versionado
