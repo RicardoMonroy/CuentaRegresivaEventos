@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Versión de un solo color para los íconos con tema de Android 13+: el sistema la tiñe -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:rotation="-14">
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3"
+            android:strokeLineJoin="round"
+            android:pathData="M30,38H78A4,4 0 0 1 82,42V49A5,5 0 0 0 82,59V66A4,4 0 0 1 78,70H30A4,4 0 0 1 26,66V59A5,5 0 0 0 26,49V42A4,4 0 0 1 30,38Z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M66.8,42a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0M66.8,47a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0M66.8,52a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0M66.8,57a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0M66.8,62a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0M66.8,67a1.2,1.2 0 1,0 2.4,0a1.2,1.2 0 1,0 -2.4,0" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:pathData="M36.5,54a10.5,10.5 0 1,0 21,0a10.5,10.5 0 1,0 -21,0" />
+        <path
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:strokeLineCap="round"
+            android:strokeLineJoin="round"
+            android:pathData="M47,47.5V54L51.5,57" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M45.7,39H48.3A1.2,1.2 0 0 1 49.5,40.2V40.4A1.2,1.2 0 0 1 48.3,41.6H45.7A1.2,1.2 0 0 1 44.5,40.4V40.2A1.2,1.2 0 0 1 45.7,39Z" />
+    </group>
+</vector>
