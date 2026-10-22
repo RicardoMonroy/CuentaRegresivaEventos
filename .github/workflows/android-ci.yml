@@ -2,123 +2,32 @@ name: Android CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ master ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ master ]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up JDK 17 (Temurin)
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Display Java version
-      run: |
-        java -version
-        echo "JAVA_HOME: $JAVA_HOME"
-        
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Cache Gradle dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-      
-    - name: Run tests (with retry)
-      uses: nick-invision/retry@v2
-      with:
-        timeout_minutes: 10
-        max_attempts: 2
-        command: |
-          ./gradlew test --no-daemon --refresh-dependencies --stacktrace
-      
-    - name: Run lint (with retry)
-      uses: nick-invision/retry@v2
-      with:
-        timeout_minutes: 5
-        max_attempts: 2
-        command: |
-          ./gradlew lint --no-daemon --refresh-dependencies --stacktrace
-      
   build:
     runs-on: ubuntu-latest
-    needs: test
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      
+
     - name: Set up JDK 17 (Temurin)
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-        
-    - name: Display Java version
-      run: |
-        java -version
-        echo "JAVA_HOME: $JAVA_HOME"
-        
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
-    - name: Cache Gradle dependencies
-      uses: actions/cache@v4
-      with:
-        path: |
-          ~/.gradle/caches
-          ~/.gradle/wrapper
-        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-        restore-keys: |
-          ${{ runner.os }}-gradle-
-          
-    - name: Build with Gradle (with retry)
-      uses: nick-invision/retry@v2
-      with:
-        timeout_minutes: 15
-        max_attempts: 3
-        command: |
-          ./gradlew assembleRelease --no-daemon --refresh-dependencies --stacktrace
-      
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      if: success()
-      with:
-        name: app-release
-        path: app/build/outputs/apk/release/app-release.apk
-        
+
+    - name: Set up Gradle (con caché)
+      uses: gradle/actions/setup-gradle@v4
+
+    - name: Tests, lint y APK debug
+      run: ./gradlew testDebugUnitTest lintDebug assembleDebug --stacktrace
+
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
-      if: success()
       with:
         name: app-debug
         path: app/build/outputs/apk/debug/app-debug.apk
-
-  notify:
-    runs-on: ubuntu-latest
-    needs: [test, build]
-    if: always()
-    
-    steps:
-    - name: Notify build status
-      run: |
-        if [ "${{ needs.test.result }}" == "success" ] && [ "${{ needs.build.result }}" == "success" ]; then
-          echo "✅ Build completed successfully!"
-        else
-          echo "❌ Build failed!"
-          exit 1
-        fi

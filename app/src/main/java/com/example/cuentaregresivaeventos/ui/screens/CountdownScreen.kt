@@ -110,6 +110,7 @@ fun EventItem(
     onUpdate: (EventUi) -> Unit
 ) {
     var showDetails by remember { mutableStateOf(false) }
+    var confirmDelete by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -160,7 +161,7 @@ fun EventItem(
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                IconButton(onClick = onDelete) {
+                IconButton(onClick = { confirmDelete = true }) {
                     Icon(
                         Icons.Default.Delete,
                         contentDescription = "Eliminar",
@@ -176,12 +177,29 @@ fun EventItem(
             event = event,
             onDismiss = { showDetails = false },
             onDelete = {
-                onDelete()
                 showDetails = false
+                confirmDelete = true
             },
             onEdit = { updated ->
                 onUpdate(updated)
                 showDetails = false
+            }
+        )
+    }
+
+    if (confirmDelete) {
+        AlertDialog(
+            onDismissRequest = { confirmDelete = false },
+            title = { Text("¿Eliminar evento?") },
+            text = { Text("Se borrará \"${event.title}\" y su imagen. No se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    confirmDelete = false
+                    onDelete()
+                }) { Text("Eliminar", color = MaterialTheme.colorScheme.error) }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmDelete = false }) { Text("Cancelar") }
             }
         )
     }

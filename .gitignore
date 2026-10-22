@@ -145,3 +145,6 @@ documentation/
 setup_env.sh
 COMANDOS_UTILES.md
 CONFIGURACION_ANDROID_STUDIO.md
+
+# Kotlin daemon logs
+.kotlin/

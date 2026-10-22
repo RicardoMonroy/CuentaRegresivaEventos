@@ -7,9 +7,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.cuentaregresivaeventos.data.EventEntity
 import com.example.cuentaregresivaeventos.data.EventRepository
 import com.example.cuentaregresivaeventos.util.DateFormatter
+import com.example.cuentaregresivaeventos.EventsWidgetProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
@@ -81,15 +84,18 @@ class EventViewModel(
 
     // Función para enviar broadcast al widget
     private fun sendWidgetUpdateBroadcast() {
-        val intent = Intent("com.example.cuentaregresivaeventos.ACTION_EVENTS_CHANGED")
-        getApplication<Application>().sendBroadcast(intent)
+        // Broadcast explícito: los implícitos no llegan a receivers del manifest desde Android 8
+        val app = getApplication<Application>()
+        val intent = Intent(app, EventsWidgetProvider::class.java)
+            .setAction(EventsWidgetProvider.ACTION_EVENTS_CHANGED)
+        app.sendBroadcast(intent)
     }
 
-    private fun copyImageToInternal(uriString: String): String? {
-        return try {
+    private suspend fun copyImageToInternal(uriString: String): String? = withContext(Dispatchers.IO) {
+        try {
             val contentResolver = getApplication<Application>().contentResolver
             val uri = Uri.parse(uriString)
-            val inputStream = contentResolver.openInputStream(uri) ?: return null
+            val inputStream = contentResolver.openInputStream(uri) ?: return@withContext null
             val fileName = "event_image_${System.currentTimeMillis()}.jpg"
             val imagesDir = File(getApplication<Application>().filesDir, "images")
             imagesDir.mkdirs()
@@ -140,10 +146,11 @@ class EventViewModel(
 
     fun updateEvent(eventUi: EventUi) {
         viewModelScope.launch {
+            val oldImagePath = lastRawEvents.find { it.id == eventUi.id }?.imagePath
             var imagePath = eventUi.imagePath
             if (imagePath != null && !File(imagePath).exists()) {
-                // It's a URI string, copy to internal
-                imagePath = copyImageToInternal(imagePath)
+                // It's a URI string, copy to internal; si falla la copia se conserva la imagen anterior
+                imagePath = copyImageToInternal(imagePath) ?: oldImagePath
             }
             repository.updateEvent(
                 EventEntity(
@@ -156,6 +163,7 @@ class EventViewModel(
                     dateTimeMillis = eventUi.dateTimeMillis
                 )
             )
+            if (oldImagePath != null && oldImagePath != imagePath) deleteImage(oldImagePath)
             // Enviar broadcast para actualizar widget
             sendWidgetUpdateBroadcast()
         }

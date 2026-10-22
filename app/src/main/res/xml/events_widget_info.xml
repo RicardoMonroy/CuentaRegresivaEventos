@@ -7,7 +7,7 @@
     android:maxWidth="400dp"
     android:maxHeight="500dp"
     android:resizeMode="horizontal|vertical"
-    android:updatePeriodMillis="0"
+    android:updatePeriodMillis="1800000"
     android:initialLayout="@layout/widget_events"
     android:previewImage="@drawable/ic_launcher_foreground"
     android:widgetCategory="home_screen">

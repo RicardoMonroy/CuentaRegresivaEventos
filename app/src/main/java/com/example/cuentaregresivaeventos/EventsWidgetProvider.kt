@@ -4,18 +4,15 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
 import android.widget.RemoteViews
-import com.example.cuentaregresivaeventos.R
 import com.example.cuentaregresivaeventos.data.EventDatabase
 import com.example.cuentaregresivaeventos.util.DateFormatter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class EventsWidgetProvider : AppWidgetProvider() {
 
@@ -24,173 +21,69 @@ class EventsWidgetProvider : AppWidgetProvider() {
         const val ACTION_EVENTS_CHANGED = "com.example.cuentaregresivaeventos.ACTION_EVENTS_CHANGED"
     }
 
-    private var widgetUpdateReceiver: BroadcastReceiver? = null
-
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        // Update all widgets
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
-        }
-        
-        // Start periodic updates
-        startPeriodicUpdates(context)
-    }
-
-    override fun onEnabled(context: Context) {
-        // Called when the first instance of this widget is created
-        super.onEnabled(context)
-        
-        // Register receiver for events changed
-        registerEventsChangedReceiver(context)
-        
-        // Update all widgets when the app is first installed
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(
-            android.content.ComponentName(context, EventsWidgetProvider::class.java)
-        )
-        for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
-        }
-        
-        // Start periodic updates
-        startPeriodicUpdates(context)
+        // El refresco periódico ahora lo hace updatePeriodMillis; se cancela la alarma de 30 s de versiones previas
+        cancelLegacyAlarm(context)
+        updateAllWidgets(context)
     }
 
     override fun onDisabled(context: Context) {
-        // Called when the last instance of this widget is removed
         super.onDisabled(context)
-        unregisterEventsChangedReceiver(context)
-        stopPeriodicUpdates(context)
+        cancelLegacyAlarm(context)
     }
 
     override fun onReceive(context: Context, intent: Intent) {
         super.onReceive(context, intent)
-        
-        when (intent.action) {
-            ACTION_EVENTS_CHANGED -> {
-                // Events were added/updated/deleted, update all widgets
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val appWidgetIds = appWidgetManager.getAppWidgetIds(
-                    android.content.ComponentName(context, EventsWidgetProvider::class.java)
-                )
-                for (appWidgetId in appWidgetIds) {
-                    updateAppWidget(context, appWidgetManager, appWidgetId)
-                }
-            }
-            ACTION_UPDATE_WIDGET -> {
-                // Periodic update alarm
-                val appWidgetManager = AppWidgetManager.getInstance(context)
-                val appWidgetIds = appWidgetManager.getAppWidgetIds(
-                    android.content.ComponentName(context, EventsWidgetProvider::class.java)
-                )
-                for (appWidgetId in appWidgetIds) {
-                    updateAppWidget(context, appWidgetManager, appWidgetId)
-                }
-            }
+        if (intent.action == ACTION_EVENTS_CHANGED) {
+            // Events were added/updated/deleted, update all widgets
+            updateAllWidgets(context)
         }
-    }
-
-    private fun registerEventsChangedReceiver(context: Context) {
-        if (widgetUpdateReceiver == null) {
-            widgetUpdateReceiver = object : BroadcastReceiver() {
-                override fun onReceive(context: Context?, intent: Intent?) {
-                    // This receiver is just to keep the widget provider alive
-                }
-            }
-            
-            val filter = IntentFilter().apply {
-                addAction(ACTION_EVENTS_CHANGED)
-            }
-            context.registerReceiver(widgetUpdateReceiver, filter)
-        }
-    }
-
-    private fun unregisterEventsChangedReceiver(context: Context) {
-        widgetUpdateReceiver?.let {
-            context.unregisterReceiver(it)
-            widgetUpdateReceiver = null
-        }
-    }
-
-    private fun startPeriodicUpdates(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pendingIntent = getUpdatePendingIntent(context)
-        
-        // Update every 30 seconds for real-time countdown
-        alarmManager.setRepeating(
-            AlarmManager.RTC,
-            System.currentTimeMillis() + 30000, // Start in 30 seconds
-            30000, // Repeat every 30 seconds
-            pendingIntent
-        )
-    }
-
-    private fun stopPeriodicUpdates(context: Context) {
-        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val pendingIntent = getUpdatePendingIntent(context)
-        alarmManager.cancel(pendingIntent)
-    }
-
-    private fun getUpdatePendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, EventsWidgetProvider::class.java)
-        intent.action = ACTION_UPDATE_WIDGET
-        return PendingIntent.getBroadcast(
-            context,
-            0,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
     }
 
     override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: android.os.Bundle) {
         // Called when widget options change (size, etc.)
-        super.onAppWidgetOptionsChanged(context, appWidgetManager, appWidgetId, newOptions)
-        updateAppWidget(context, appWidgetManager, appWidgetId)
+        updateAllWidgets(context)
     }
 
-    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        try {
-            val views = RemoteViews(context.packageName, R.layout.widget_events)
+    private fun cancelLegacyAlarm(context: Context) {
+        val intent = Intent(context, EventsWidgetProvider::class.java).setAction(ACTION_UPDATE_WIDGET)
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, 0, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        ) ?: return
+        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(pendingIntent)
+    }
 
-            // Intent to open the app
-            val intent = Intent(context, MainActivity::class.java)
-            val pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
+    private fun updateAllWidgets(context: Context) {
+        val appWidgetManager = AppWidgetManager.getInstance(context)
+        val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, EventsWidgetProvider::class.java))
+        if (appWidgetIds.isEmpty()) return
 
-            // Load events and update the widget
-            CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val db = EventDatabase.getInstance(context)
-                    val events = db.eventDao().getAllEventsList().take(6) // Show up to 6 events
-    
-                    withContext(Dispatchers.Main) {
-                        try {
-                            updateEventsInWidget(views, events)
-                            appWidgetManager.updateAppWidget(appWidgetId, views)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            // Update with empty state if there's an error
-                            showEmptyState(views)
-                            appWidgetManager.updateAppWidget(appWidgetId, views)
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    withContext(Dispatchers.Main) {
-                        showEmptyState(views)
-                        appWidgetManager.updateAppWidget(appWidgetId, views)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            // If there's a critical error, try to update with a basic widget
+        // goAsync mantiene vivo el receiver hasta terminar la consulta; sin él Android puede matar el proceso
+        val pendingResult = goAsync()
+        CoroutineScope(Dispatchers.IO).launch {
             try {
                 val views = RemoteViews(context.packageName, R.layout.widget_events)
-                showEmptyState(views)
-                appWidgetManager.updateAppWidget(appWidgetId, views)
-            } catch (e2: Exception) {
-                e2.printStackTrace()
+                // Intent to open the app
+                val openApp = PendingIntent.getActivity(
+                    context, 0, Intent(context, MainActivity::class.java),
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+                views.setOnClickPendingIntent(R.id.widget_container, openApp)
+                try {
+                    val now = System.currentTimeMillis()
+                    val events = EventDatabase.getInstance(context).eventDao().getAllEventsList()
+                        .filter { it.dateTimeMillis > now }
+                        .take(6) // Show up to 6 events
+                    if (events.isEmpty()) showEmptyState(views) else updateEventsInWidget(views, events)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    showEmptyState(views)
+                }
+                appWidgetManager.updateAppWidget(appWidgetIds, views)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                pendingResult.finish()
             }
         }
     }
