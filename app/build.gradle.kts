@@ -15,8 +15,8 @@ android {
         applicationId = "com.example.cuentaregresivaeventos"
         minSdk = 26 // Gemini Nano (ML Kit GenAI) requiere API 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.6.0"
+        versionCode = 7
+        versionName = "0.7.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

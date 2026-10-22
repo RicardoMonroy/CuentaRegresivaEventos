@@ -1,10 +1,13 @@
 package com.example.cuentaregresivaeventos.ui.screens
 
+import android.content.ClipboardManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -20,13 +23,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
@@ -47,11 +55,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
 import com.example.cuentaregresivaeventos.ui.EventUi
+import com.example.cuentaregresivaeventos.util.EventSearch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +71,8 @@ fun EventDetailScreen(
     now: () -> Long,
     onBack: () -> Unit,
     onEdit: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onAppendNotes: (String) -> Unit
 ) {
     var confirmDelete by remember { mutableStateOf(false) }
     var showFullImage by remember { mutableStateOf(false) }
@@ -112,6 +124,7 @@ fun EventDetailScreen(
                     InfoRow(Icons.Default.DateRange, "Fecha", event.formattedDateTime)
                     event.locationText().takeIf { it.isNotEmpty() }?.let { InfoRow(Icons.Default.Place, "Lugar", it) }
                     event.description?.takeIf { it.isNotBlank() }?.let { InfoRow(Icons.Default.Info, "Notas", it) }
+                    if (!isPast) SearchSection(event, onAppendNotes)
                     Spacer(Modifier.height(24.dp))
                 }
             }
@@ -155,6 +168,57 @@ fun EventDetailScreen(
                 TextButton(onClick = { confirmDelete = false }) { Text("Cancelar") }
             }
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SearchSection(event: EventUi, onAppendNotes: (String) -> Unit) {
+    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
+    var pasteMessage by remember { mutableStateOf<String?>(null) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("Buscar más info", style = MaterialTheme.typography.titleMedium)
+        Text(
+            "Lugar confirmado, precios y dónde comprar boletos. Copia lo útil y pégalo en las notas.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            AssistChip(
+                onClick = { uriHandler.openUri(EventSearch.google(event.title, event.city, event.dateTimeMillis)) },
+                label = { Text("Google") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp)) }
+            )
+            AssistChip(
+                onClick = { uriHandler.openUri(EventSearch.tickets(event.title, event.city, event.dateTimeMillis)) },
+                label = { Text("Boletos y precio") },
+                leadingIcon = { Icon(Icons.Default.ShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp)) }
+            )
+            AssistChip(
+                onClick = { uriHandler.openUri(EventSearch.ticketmaster(event.title)) },
+                label = { Text("Ticketmaster") },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp)) }
+            )
+        }
+        OutlinedButton(onClick = {
+            val text = context.getSystemService(ClipboardManager::class.java)?.primaryClip
+                ?.takeIf { it.itemCount > 0 }?.getItemAt(0)?.coerceToText(context)?.toString()?.trim()
+            pasteMessage = if (text.isNullOrEmpty()) {
+                "El portapapeles está vacío; copia primero el texto en el navegador"
+            } else {
+                onAppendNotes(text)
+                "Agregado a las notas"
+            }
+        }) {
+            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(8.dp))
+            Text("Pegar en notas")
+        }
+        pasteMessage?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 

@@ -106,6 +106,10 @@ fun CountdownScreen(
                 onDelete = {
                     selectedId = null
                     onDeleteEvent(selected)
+                },
+                onAppendNotes = { text ->
+                    val notes = listOfNotNull(selected.description?.takeIf { it.isNotBlank() }, text).joinToString("\n")
+                    onUpdateEvent(selected.copy(description = notes))
                 }
             )
         } else {
