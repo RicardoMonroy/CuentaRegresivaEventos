@@ -1,13 +1,13 @@
 package com.example.cuentaregresivaeventos.ui
 
 import android.app.Application
-import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cuentaregresivaeventos.data.EventEntity
 import com.example.cuentaregresivaeventos.data.EventRepository
 import com.example.cuentaregresivaeventos.util.DateFormatter
-import com.example.cuentaregresivaeventos.EventsWidgetProvider
+import androidx.glance.appwidget.updateAll
+import com.example.cuentaregresivaeventos.EventsWidget
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -82,13 +82,9 @@ class EventViewModel(
         }
     }
 
-    // Función para enviar broadcast al widget
-    private fun sendWidgetUpdateBroadcast() {
-        // Broadcast explícito: los implícitos no llegan a receivers del manifest desde Android 8
-        val app = getApplication<Application>()
-        val intent = Intent(app, EventsWidgetProvider::class.java)
-            .setAction(EventsWidgetProvider.ACTION_EVENTS_CHANGED)
-        app.sendBroadcast(intent)
+    // Redibuja todas las instancias del widget con los datos actuales
+    private suspend fun refreshWidget() {
+        EventsWidget().updateAll(getApplication())
     }
 
     private suspend fun copyImageToInternal(uriString: String): String? = withContext(Dispatchers.IO) {
@@ -139,8 +135,8 @@ class EventViewModel(
                     dateTimeMillis = dateTimeMillis
                 )
             )
-            // Enviar broadcast para actualizar widget
-            sendWidgetUpdateBroadcast()
+            // Actualizar widget
+            refreshWidget()
         }
     }
 
@@ -164,8 +160,8 @@ class EventViewModel(
                 )
             )
             if (oldImagePath != null && oldImagePath != imagePath) deleteImage(oldImagePath)
-            // Enviar broadcast para actualizar widget
-            sendWidgetUpdateBroadcast()
+            // Actualizar widget
+            refreshWidget()
         }
     }
 
@@ -182,8 +178,8 @@ class EventViewModel(
             )
             repository.deleteEvent(entity)
             eventUi.imagePath?.let { deleteImage(it) }
-            // Enviar broadcast para actualizar widget
-            sendWidgetUpdateBroadcast()
+            // Actualizar widget
+            refreshWidget()
         }
     }
 }

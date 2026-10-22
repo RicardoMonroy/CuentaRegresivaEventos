@@ -1,186 +1,290 @@
 package com.example.cuentaregresivaeventos
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.appwidget.AppWidgetManager
-import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
-import android.content.Intent
-import android.widget.RemoteViews
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.glance.GlanceId
+import androidx.glance.GlanceModifier
+import androidx.glance.GlanceTheme
+import androidx.glance.Image
+import androidx.glance.ImageProvider
+import androidx.glance.LocalSize
+import androidx.glance.action.actionStartActivity
+import androidx.glance.action.clickable
+import androidx.glance.appwidget.GlanceAppWidget
+import androidx.glance.appwidget.GlanceAppWidgetReceiver
+import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.appWidgetBackground
+import androidx.glance.appwidget.cornerRadius
+import androidx.glance.appwidget.lazy.LazyColumn
+import androidx.glance.appwidget.lazy.items
+import androidx.glance.appwidget.provideContent
+import androidx.glance.background
+import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
+import androidx.glance.layout.Column
+import androidx.glance.layout.ContentScale
+import androidx.glance.layout.Row
+import androidx.glance.layout.Spacer
+import androidx.glance.layout.fillMaxSize
+import androidx.glance.layout.fillMaxWidth
+import androidx.glance.layout.height
+import androidx.glance.layout.padding
+import androidx.glance.layout.size
+import androidx.glance.layout.width
+import androidx.glance.text.FontWeight
+import androidx.glance.text.Text
+import androidx.glance.text.TextStyle
+import androidx.glance.unit.ColorProvider
 import com.example.cuentaregresivaeventos.data.EventDatabase
+import com.example.cuentaregresivaeventos.data.EventEntity
 import com.example.cuentaregresivaeventos.util.DateFormatter
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class EventsWidgetProvider : AppWidgetProvider() {
+// El nombre de la clase se conserva para no quitar los widgets ya colocados en la pantalla de inicio
+class EventsWidgetProvider : GlanceAppWidgetReceiver() {
+    override val glanceAppWidget: GlanceAppWidget = EventsWidget()
+}
+
+private data class WidgetEvent(val entity: EventEntity, val image: Bitmap?)
+
+class EventsWidget : GlanceAppWidget() {
 
     companion object {
-        const val ACTION_UPDATE_WIDGET = "com.example.cuentaregresivaeventos.ACTION_UPDATE_WIDGET"
-        const val ACTION_EVENTS_CHANGED = "com.example.cuentaregresivaeventos.ACTION_EVENTS_CHANGED"
+        private val SMALL = DpSize(110.dp, 110.dp)
+        private val LIST = DpSize(250.dp, 180.dp)
+        private const val MAX_EVENTS = 10
+        // Los bitmaps viajan dentro de RemoteViews, que tiene límite de memoria: miniaturas pequeñas
+        private const val HERO_PX = 480
+        private const val THUMB_PX = 160
     }
 
-    override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
-        // El refresco periódico ahora lo hace updatePeriodMillis; se cancela la alarma de 30 s de versiones previas
-        cancelLegacyAlarm(context)
-        updateAllWidgets(context)
-    }
+    override val sizeMode = SizeMode.Responsive(setOf(SMALL, LIST))
 
-    override fun onDisabled(context: Context) {
-        super.onDisabled(context)
-        cancelLegacyAlarm(context)
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-        if (intent.action == ACTION_EVENTS_CHANGED) {
-            // Events were added/updated/deleted, update all widgets
-            updateAllWidgets(context)
-        }
-    }
-
-    override fun onAppWidgetOptionsChanged(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int, newOptions: android.os.Bundle) {
-        // Called when widget options change (size, etc.)
-        updateAllWidgets(context)
-    }
-
-    private fun cancelLegacyAlarm(context: Context) {
-        val intent = Intent(context, EventsWidgetProvider::class.java).setAction(ACTION_UPDATE_WIDGET)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context, 0, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
-        ) ?: return
-        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).cancel(pendingIntent)
-    }
-
-    private fun updateAllWidgets(context: Context) {
-        val appWidgetManager = AppWidgetManager.getInstance(context)
-        val appWidgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, EventsWidgetProvider::class.java))
-        if (appWidgetIds.isEmpty()) return
-
-        // goAsync mantiene vivo el receiver hasta terminar la consulta; sin él Android puede matar el proceso
-        val pendingResult = goAsync()
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val views = RemoteViews(context.packageName, R.layout.widget_events)
-                // Intent to open the app
-                val openApp = PendingIntent.getActivity(
-                    context, 0, Intent(context, MainActivity::class.java),
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                views.setOnClickPendingIntent(R.id.widget_container, openApp)
-                try {
-                    val now = System.currentTimeMillis()
-                    val events = EventDatabase.getInstance(context).eventDao().getAllEventsList()
-                        .filter { it.dateTimeMillis > now }
-                        .take(6) // Show up to 6 events
-                    if (events.isEmpty()) showEmptyState(views) else updateEventsInWidget(views, events)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    showEmptyState(views)
+    override suspend fun provideGlance(context: Context, id: GlanceId) {
+        val now = System.currentTimeMillis()
+        val events = withContext(Dispatchers.IO) {
+            EventDatabase.getInstance(context).eventDao().getAllEventsList()
+                .filter { it.dateTimeMillis > now }
+                .take(MAX_EVENTS)
+                .mapIndexed { index, entity ->
+                    WidgetEvent(entity, entity.imagePath?.let { loadThumbnail(it, if (index == 0) HERO_PX else THUMB_PX) })
                 }
-                appWidgetManager.updateAppWidget(appWidgetIds, views)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                pendingResult.finish()
+        }
+
+        provideContent {
+            GlanceTheme {
+                WidgetContent(events, now)
             }
         }
     }
 
-    private fun updateEventsInWidget(views: RemoteViews, events: List<com.example.cuentaregresivaeventos.data.EventEntity>) {
-        try {
-            // Define all possible event container IDs and their text view IDs (up to 6 events)
-            // Updated to include location text view: [title, date, location, days]
-            val eventContainers = arrayOf(
-                R.id.event_1_container to arrayOf(R.id.event_1_title, R.id.event_1_date, R.id.event_1_location, R.id.event_1_days),
-                R.id.event_2_container to arrayOf(R.id.event_2_title, R.id.event_2_date, R.id.event_2_location, R.id.event_2_days),
-                R.id.event_3_container to arrayOf(R.id.event_3_title, R.id.event_3_date, R.id.event_3_location, R.id.event_3_days),
-                R.id.event_4_container to arrayOf(R.id.event_4_title, R.id.event_4_date, R.id.event_4_location, R.id.event_4_days),
-                R.id.event_5_container to arrayOf(R.id.event_5_title, R.id.event_5_date, R.id.event_5_location, R.id.event_5_days),
-                R.id.event_6_container to arrayOf(R.id.event_6_title, R.id.event_6_date, R.id.event_6_location, R.id.event_6_days)
+    private fun loadThumbnail(path: String, maxPx: Int): Bitmap? {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(path, bounds)
+        if (bounds.outWidth <= 0) return null
+        var sample = 1
+        while (maxOf(bounds.outWidth, bounds.outHeight) / (sample * 2) >= maxPx) sample *= 2
+        return BitmapFactory.decodeFile(path, BitmapFactory.Options().apply { inSampleSize = sample })
+    }
+}
+
+@Composable
+private fun WidgetContent(events: List<WidgetEvent>, now: Long) {
+    val size = LocalSize.current
+    Box(
+        modifier = GlanceModifier
+            .fillMaxSize()
+            .appWidgetBackground()
+            .cornerRadius(24.dp)
+            .background(GlanceTheme.colors.widgetBackground)
+            .clickable(actionStartActivity<MainActivity>()),
+        contentAlignment = Alignment.Center
+    ) {
+        when {
+            events.isEmpty() -> EmptyState()
+            // Widget chico o un solo evento: el flyer ocupa todo
+            events.size == 1 || size.width < 250.dp || size.height < 180.dp -> NextEventHero(events.first(), now)
+            else -> EventList(events, now)
+        }
+    }
+}
+
+@Composable
+private fun EmptyState() {
+    Column(
+        modifier = GlanceModifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            "Sin eventos próximos",
+            style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+        )
+        Text(
+            "Toca para agregar uno",
+            style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp)
+        )
+    }
+}
+
+@Composable
+private fun NextEventHero(event: WidgetEvent, now: Long, modifier: GlanceModifier = GlanceModifier.fillMaxSize()) {
+    val (number, unit) = DateFormatter.widgetCountdown(event.entity.dateTimeMillis, now)
+    val textColor = if (event.image != null) ColorProvider(Color.White) else GlanceTheme.colors.onPrimaryContainer
+
+    Box(
+        modifier = modifier
+            .cornerRadius(24.dp)
+            .background(GlanceTheme.colors.primaryContainer)
+            .clickable(actionStartActivity<MainActivity>())
+    ) {
+        if (event.image != null) {
+            Image(
+                provider = ImageProvider(event.image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = GlanceModifier.fillMaxSize()
             )
-
-            // Hide all containers first
-            eventContainers.forEach { (containerId, _) ->
-                views.setViewVisibility(containerId, android.view.View.GONE)
+            // Degradado oscuro abajo para que el texto se lea sobre cualquier flyer
+            Box(modifier = GlanceModifier.fillMaxSize().background(ImageProvider(R.drawable.widget_scrim))) {}
+        }
+        Column(
+            modifier = GlanceModifier.fillMaxSize().padding(14.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Row(verticalAlignment = Alignment.Bottom) {
+                Text(number, style = TextStyle(color = textColor, fontSize = 44.sp, fontWeight = FontWeight.Bold))
+                Spacer(GlanceModifier.width(6.dp))
+                Text(
+                    unit,
+                    modifier = GlanceModifier.padding(bottom = 8.dp),
+                    style = TextStyle(color = textColor, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                )
             }
-
-            // Update visible events
-            events.forEachIndexed { index, event ->
-                if (index < eventContainers.size) {
-                    try {
-                        val (containerId, textIds) = eventContainers[index]
-                        
-                        // Safe date formatting with fallbacks
-                        val formattedDate = try {
-                            DateFormatter.formatDateTimeSpanish(event.dateTimeMillis)
-                        } catch (e: Exception) {
-                            "Fecha inválida"
-                        }
-                        
-                        // Format location with place and city
-                        val locationText = try {
-                            val place = event.place?.trim() ?: ""
-                            val city = event.city?.trim() ?: ""
-                            when {
-                                place.isNotEmpty() && city.isNotEmpty() -> "$place, $city"
-                                place.isNotEmpty() -> place
-                                city.isNotEmpty() -> city
-                                else -> ""
-                            }
-                        } catch (e: Exception) {
-                            ""
-                        }
-                        
-                        val daysRemaining = try {
-                            val now = System.currentTimeMillis()
-                            val diff = event.dateTimeMillis - now
-                            if (diff <= 0) {
-                                "0"
-                            } else {
-                                val totalSeconds = diff / 1000
-                                val days = totalSeconds / (24 * 3600)
-                                days.toString()
-                            }
-                        } catch (e: Exception) {
-                            "?"
-                        }
-
-                        // Show the container
-                        views.setViewVisibility(containerId, android.view.View.VISIBLE)
-                        
-                        // Set text for title, date, location, and days
-                        views.setTextViewText(textIds[0], event.title ?: "Sin título")
-                        views.setTextViewText(textIds[1], formattedDate)
-                        views.setTextViewText(textIds[2], locationText)
-                        views.setTextViewText(textIds[3], daysRemaining)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        // Skip this event if there's an error
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            // If there's a general error, show empty state
-            showEmptyState(views)
+            Spacer(GlanceModifier.height(2.dp))
+            Text(
+                event.entity.title,
+                maxLines = 2,
+                style = TextStyle(color = textColor, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+            )
+            Text(
+                listOf(DateFormatter.formatShortDateTimeSpanish(event.entity.dateTimeMillis), event.entity.city.trim())
+                    .filter { it.isNotEmpty() }.joinToString(" · "),
+                maxLines = 1,
+                style = TextStyle(color = textColor, fontSize = 12.sp)
+            )
         }
     }
+}
 
-    private fun showEmptyState(views: RemoteViews) {
-        // Show only the first container with "No events" message
-        views.setViewVisibility(R.id.event_1_container, android.view.View.VISIBLE)
-        views.setTextViewText(R.id.event_1_title, "No hay eventos")
-        views.setTextViewText(R.id.event_1_date, "Agrega eventos desde la app")
-        views.setTextViewText(R.id.event_1_location, "")
-        views.setTextViewText(R.id.event_1_days, "--")
-        
-        // Hide all other containers (6 events max)
-        views.setViewVisibility(R.id.event_2_container, android.view.View.GONE)
-        views.setViewVisibility(R.id.event_3_container, android.view.View.GONE)
-        views.setViewVisibility(R.id.event_4_container, android.view.View.GONE)
-        views.setViewVisibility(R.id.event_5_container, android.view.View.GONE)
-        views.setViewVisibility(R.id.event_6_container, android.view.View.GONE)
+@Composable
+private fun EventList(events: List<WidgetEvent>, now: Long) {
+    Column(modifier = GlanceModifier.fillMaxSize().padding(horizontal = 12.dp, vertical = 12.dp)) {
+        Row(
+            modifier = GlanceModifier.fillMaxWidth().padding(start = 4.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                "Próximos eventos",
+                modifier = GlanceModifier.defaultWeight(),
+                style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Bold)
+            )
+            Text(
+                "${events.size}",
+                style = TextStyle(color = GlanceTheme.colors.primary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            )
+        }
+        LazyColumn(modifier = GlanceModifier.fillMaxSize()) {
+            // El próximo evento va como banner con su flyer; el resto en filas
+            item(itemId = events.first().entity.id) {
+                Column {
+                    NextEventHero(events.first(), now, GlanceModifier.fillMaxWidth().height(150.dp))
+                    Spacer(GlanceModifier.height(8.dp))
+                }
+            }
+            items(events.drop(1), itemId = { it.entity.id }) { event ->
+                Column {
+                    EventRow(event, now)
+                    Spacer(GlanceModifier.height(8.dp))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun EventRow(event: WidgetEvent, now: Long) {
+    val entity = event.entity
+    val (number, unit) = DateFormatter.widgetCountdown(entity.dateTimeMillis, now)
+    val location = listOf(entity.place, entity.city).map { it.trim() }.filter { it.isNotEmpty() }.joinToString(", ")
+
+    Row(
+        modifier = GlanceModifier
+            .fillMaxWidth()
+            .cornerRadius(16.dp)
+            .background(GlanceTheme.colors.surfaceVariant)
+            .padding(8.dp)
+            .clickable(actionStartActivity<MainActivity>()),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (event.image != null) {
+            Image(
+                provider = ImageProvider(event.image),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = GlanceModifier.size(52.dp).cornerRadius(12.dp)
+            )
+        } else {
+            Box(
+                modifier = GlanceModifier.size(52.dp).cornerRadius(12.dp).background(GlanceTheme.colors.secondaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    entity.title.take(1).uppercase(),
+                    style = TextStyle(color = GlanceTheme.colors.onSecondaryContainer, fontSize = 22.sp, fontWeight = FontWeight.Bold)
+                )
+            }
+        }
+        Spacer(GlanceModifier.width(10.dp))
+        Column(modifier = GlanceModifier.defaultWeight()) {
+            Text(
+                entity.title,
+                maxLines = 1,
+                style = TextStyle(color = GlanceTheme.colors.onSurface, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+            )
+            Text(
+                DateFormatter.formatShortDateTimeSpanish(entity.dateTimeMillis),
+                maxLines = 1,
+                style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp)
+            )
+            if (location.isNotEmpty()) {
+                Text(
+                    location,
+                    maxLines = 1,
+                    style = TextStyle(color = GlanceTheme.colors.onSurfaceVariant, fontSize = 12.sp)
+                )
+            }
+        }
+        Spacer(GlanceModifier.width(8.dp))
+        Column(
+            modifier = GlanceModifier
+                .width(58.dp)
+                .cornerRadius(12.dp)
+                .background(GlanceTheme.colors.primaryContainer)
+                .padding(vertical = 6.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                number,
+                style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+            )
+            Text(unit, style = TextStyle(color = GlanceTheme.colors.onPrimaryContainer, fontSize = 11.sp))
+        }
     }
 }

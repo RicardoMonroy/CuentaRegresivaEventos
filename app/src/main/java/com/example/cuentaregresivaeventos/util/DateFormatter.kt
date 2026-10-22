@@ -46,23 +46,38 @@ object DateFormatter {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
         
-        return "$day de ${spanishMonths[month]} de $year, ${String.format("%02d:%02d", hour, minute)}"
+        return "$day de ${spanishMonths[month]} de $year, ${String.format(Locale.ROOT, "%02d:%02d", hour, minute)}"
     }
     
     /**
-     * Formatea solo la fecha para el widget con día grande y mes debajo
-     * Retorna un Pair con (día, "mes año")
+     * Formatea fecha corta para el widget: "DD mes · HH:mm"
+     * Ejemplo: "15 dic · 21:00"
      */
-    fun formatDateForWidget(dateTimeMillis: Long): Pair<String, String> {
+    fun formatShortDateTimeSpanish(dateTimeMillis: Long): String {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = dateTimeMillis
         }
-        
+
         val day = calendar.get(Calendar.DAY_OF_MONTH)
         val month = calendar.get(Calendar.MONTH)
-        val year = calendar.get(Calendar.YEAR)
-        
-        return Pair(day.toString(), "${spanishMonths[month]} $year")
+
+        return "$day ${spanishShortMonths[month]} · ${formatTimeForWidget(dateTimeMillis)}"
+    }
+
+    /**
+     * Cuenta regresiva para el widget como (número, unidad)
+     * Ejemplo: ("12", "días"), ("5", "horas"), ("30", "min")
+     */
+    fun widgetCountdown(dateTimeMillis: Long, now: Long = System.currentTimeMillis()): Pair<String, String> {
+        val totalMinutes = maxOf(dateTimeMillis - now, 0L) / 60_000
+        val days = totalMinutes / (24 * 60)
+        val hours = totalMinutes / 60
+
+        return when {
+            days >= 1 -> days.toString() to if (days == 1L) "día" else "días"
+            hours >= 1 -> hours.toString() to if (hours == 1L) "hora" else "horas"
+            else -> totalMinutes.toString() to "min"
+        }
     }
     
     /**
@@ -76,7 +91,7 @@ object DateFormatter {
         val hour = calendar.get(Calendar.HOUR_OF_DAY)
         val minute = calendar.get(Calendar.MINUTE)
         
-        return String.format("%02d:%02d", hour, minute)
+        return String.format(Locale.ROOT, "%02d:%02d", hour, minute)
     }
     
     /**
@@ -107,23 +122,5 @@ object DateFormatter {
         }
         
         return parts.joinToString(", ")
-    }
-    
-    /**
-     * Formatea el countdown compacto para el widget
-     * Ejemplo: "25d 14h 30m"
-     */
-    fun formatCountdownCompact(dateTimeMillis: Long): String {
-        val now = System.currentTimeMillis()
-        val diff = dateTimeMillis - now
-        
-        if (diff <= 0) return "Pasado"
-        
-        val totalSeconds = diff / 1000
-        val days = totalSeconds / (24 * 3600)
-        val hours = (totalSeconds % (24 * 3600)) / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        
-        return "${days}d ${hours}h ${minutes}m"
     }
 }
