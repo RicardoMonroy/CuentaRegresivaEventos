@@ -5,6 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cuentaregresivaeventos.data.EventEntity
 import com.example.cuentaregresivaeventos.data.EventRepository
+import com.example.cuentaregresivaeventos.flyer.FlyerReader
+import com.example.cuentaregresivaeventos.flyer.FlyerResult
 import com.example.cuentaregresivaeventos.util.DateFormatter
 import androidx.glance.appwidget.updateAll
 import com.example.cuentaregresivaeventos.EventsWidget
@@ -45,6 +47,11 @@ class EventViewModel(
             delay(1000L)
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), System.currentTimeMillis())
+
+    private val flyerReader = FlyerReader(application, viewModelScope)
+
+    // Lee banda, fecha, lugar, etc. del flyer; null si la imagen no se pudo abrir
+    suspend fun readFlyer(source: String): FlyerResult? = flyerReader.read(source)
 
     private fun EventEntity.toUi() = EventUi(
         id = id,

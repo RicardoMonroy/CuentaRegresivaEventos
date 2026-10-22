@@ -39,6 +39,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -53,6 +54,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.cuentaregresivaeventos.flyer.FlyerResult
 import com.example.cuentaregresivaeventos.ui.EventUi
 import com.example.cuentaregresivaeventos.util.DateFormatter
 
@@ -62,11 +64,26 @@ fun CountdownScreen(
     now: () -> Long,
     onAddEvent: (String, String, String, String?, String?, Long) -> Unit,
     onDeleteEvent: (EventUi) -> Unit,
-    onUpdateEvent: (EventUi) -> Unit
+    onUpdateEvent: (EventUi) -> Unit,
+    onReadFlyer: suspend (String) -> FlyerResult?,
+    sharedImage: String? = null,
+    onSharedImageHandled: () -> Unit = {}
 ) {
     var selectedId by rememberSaveable { mutableStateOf<Long?>(null) }
     var showEditor by rememberSaveable { mutableStateOf(false) }
     var editingId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var editorImage by rememberSaveable { mutableStateOf<String?>(null) }
+
+    // Flyer compartido desde otra app: abrir "Nuevo evento" con esa imagen
+    LaunchedEffect(sharedImage) {
+        if (sharedImage != null) {
+            selectedId = null
+            editingId = null
+            editorImage = sharedImage
+            showEditor = true
+            onSharedImageHandled()
+        }
+    }
     // El estado del scroll vive aquí para no perder la posición al volver del detalle
     val gridState = rememberLazyGridState()
 
@@ -99,6 +116,7 @@ fun CountdownScreen(
                 onOpen = { selectedId = it.id },
                 onAdd = {
                     editingId = null
+                    editorImage = null
                     showEditor = true
                 }
             )
@@ -109,6 +127,8 @@ fun CountdownScreen(
         val editing = events.find { it.id == editingId }
         EventEditor(
             initial = editing,
+            initialImage = editorImage,
+            onReadFlyer = onReadFlyer,
             onDismiss = { showEditor = false },
             onSave = { title, place, city, description, image, dateTimeMillis ->
                 if (editing == null) {

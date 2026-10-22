@@ -13,10 +13,10 @@ android {
 
     defaultConfig {
         applicationId = "com.example.cuentaregresivaeventos"
-        minSdk = 24
+        minSdk = 26 // Gemini Nano (ML Kit GenAI) requiere API 26
         targetSdk = 36
-        versionCode = 5
-        versionName = "0.5.0"
+        versionCode = 6
+        versionName = "0.6.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -91,4 +91,8 @@ dependencies {
 
     // Glance para el widget
     implementation(libs.androidx.glance.appwidget)
+
+    // Lectura de flyers en el teléfono: OCR y Gemini Nano
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.mlkit.genai.prompt)
 }

@@ -1,5 +1,7 @@
 package com.example.cuentaregresivaeventos
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,6 +11,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.core.content.IntentCompat
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -22,9 +27,14 @@ import com.example.cuentaregresivaeventos.ui.theme.CuentaRegresivaEventosTheme
 
 class MainActivity : ComponentActivity() {
 
+    // Flyer recibido con "Compartir" desde otra app, pendiente de abrir en el editor
+    private var sharedImage by mutableStateOf<String?>(null)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        // Tras rotar la pantalla el intent sigue igual; solo se lee al crear la actividad por primera vez
+        if (savedInstanceState == null) sharedImage = sharedImageOf(intent)
 
         // Crear DB y repositorio una sola vez
         val db = EventDatabase.getInstance(applicationContext)
@@ -36,15 +46,35 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    CountdownApp(repository = repository, application = application)
+                    CountdownApp(
+                        repository = repository,
+                        application = application,
+                        sharedImage = sharedImage,
+                        onSharedImageHandled = { sharedImage = null }
+                    )
                 }
             }
         }
     }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        sharedImageOf(intent)?.let { sharedImage = it }
+    }
+
+    private fun sharedImageOf(intent: Intent?): String? =
+        intent?.takeIf { it.action == Intent.ACTION_SEND && it.type?.startsWith("image/") == true }
+            ?.let { IntentCompat.getParcelableExtra(it, Intent.EXTRA_STREAM, Uri::class.java) }
+            ?.toString()
 }
 
 @Composable
-fun CountdownApp(repository: EventRepository, application: android.app.Application) {
+fun CountdownApp(
+    repository: EventRepository,
+    application: android.app.Application,
+    sharedImage: String?,
+    onSharedImageHandled: () -> Unit
+) {
     // Factory para el ViewModel con dependencia repository y application
     val factory = object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -76,6 +106,9 @@ fun CountdownApp(repository: EventRepository, application: android.app.Applicati
         },
         onUpdateEvent = { updatedUi ->
             viewModel.updateEvent(updatedUi)
-        }
+        },
+        onReadFlyer = viewModel::readFlyer,
+        sharedImage = sharedImage,
+        onSharedImageHandled = onSharedImageHandled
     )
 }

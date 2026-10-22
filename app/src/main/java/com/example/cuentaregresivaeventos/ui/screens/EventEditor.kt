@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -43,6 +44,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -50,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.foundation.text.KeyboardOptions
@@ -57,7 +62,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil.compose.AsyncImage
+import com.example.cuentaregresivaeventos.flyer.FlyerData
+import com.example.cuentaregresivaeventos.flyer.FlyerResult
 import com.example.cuentaregresivaeventos.ui.EventUi
+import kotlinx.coroutines.launch
 import com.example.cuentaregresivaeventos.util.DateFormatter
 import java.util.Calendar
 import java.util.Locale
@@ -71,14 +79,16 @@ import java.util.TimeZone
 @Composable
 fun EventEditor(
     initial: EventUi?,
+    onReadFlyer: suspend (String) -> FlyerResult?,
     onDismiss: () -> Unit,
-    onSave: (title: String, place: String, city: String, description: String?, image: String?, dateTimeMillis: Long) -> Unit
+    onSave: (title: String, place: String, city: String, description: String?, image: String?, dateTimeMillis: Long) -> Unit,
+    initialImage: String? = null
 ) {
     var title by rememberSaveable { mutableStateOf(initial?.title ?: "") }
     var place by rememberSaveable { mutableStateOf(initial?.place ?: "") }
     var city by rememberSaveable { mutableStateOf(initial?.city ?: "") }
     var description by rememberSaveable { mutableStateOf(initial?.description ?: "") }
-    var image by rememberSaveable { mutableStateOf(initial?.imagePath) }
+    var image by rememberSaveable { mutableStateOf(initial?.imagePath ?: initialImage) }
     // DatePicker de Material trabaja en medianoche UTC; la hora se guarda aparte
     var dateUtc by rememberSaveable { mutableStateOf(initial?.dateTimeMillis?.let { localToUtcDate(it) }) }
     var hour by rememberSaveable { mutableStateOf(initial?.dateTimeMillis?.let { calendarOf(it).get(Calendar.HOUR_OF_DAY) }) }
@@ -86,6 +96,53 @@ fun EventEditor(
     var showErrors by rememberSaveable { mutableStateOf(false) }
     var showDatePicker by rememberSaveable { mutableStateOf(false) }
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
+    var reading by remember { mutableStateOf(false) }
+    var readMessage by rememberSaveable { mutableStateOf<String?>(null) }
+    var lastAutoRead by rememberSaveable { mutableStateOf<String?>(null) }
+    val scope = rememberCoroutineScope()
+
+    // Automático solo llena campos vacíos; el botón "Leer datos" reemplaza lo que haya
+    fun apply(data: FlyerData, overwrite: Boolean) {
+        fun pick(current: String, found: String?) = if (found.isNullOrBlank() || (current.isNotBlank() && !overwrite)) current else found
+        title = pick(title, data.title)
+        place = pick(place, data.place)
+        city = pick(city, data.city)
+        description = pick(description, data.notes)
+        if (data.hasDate && (dateUtc == null || overwrite)) {
+            dateUtc = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+                clear()
+                set(data.year!!, data.month!! - 1, data.day!!)
+            }.timeInMillis
+        }
+        if (data.hour != null && (hour == null || overwrite)) {
+            hour = data.hour
+            minute = data.minute ?: 0
+        }
+    }
+
+    suspend fun readFlyer(source: String, overwrite: Boolean) {
+        reading = true
+        val result = onReadFlyer(source)
+        reading = false
+        readMessage = when {
+            result == null -> "No pude abrir la imagen"
+            result.data.isEmpty -> "No encontré datos en el flyer; captúralos a mano"
+            else -> {
+                apply(result.data, overwrite)
+                if (result.usedAi) "Leído con Gemini Nano · revisa los datos antes de guardar"
+                else "Leído del texto del flyer · revisa los datos antes de guardar"
+            }
+        }
+    }
+
+    // Flyer recién elegido (o compartido desde otra app): leerlo una sola vez
+    LaunchedEffect(image) {
+        val current = image
+        if (current != null && current != initial?.imagePath && current != lastAutoRead) {
+            lastAutoRead = current
+            readFlyer(current, overwrite = false)
+        }
+    }
 
     val flyerPicker = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         if (uri != null) image = uri.toString()
@@ -136,9 +193,27 @@ fun EventEditor(
             ) {
                 FlyerPickerBox(
                     image = image,
+                    reading = reading,
                     onPick = ::pickFlyer,
-                    onRemove = { image = null }
+                    onRemove = {
+                        image = null
+                        readMessage = null
+                    }
                 )
+                image?.let { current ->
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            readMessage ?: "Puedo leer banda, fecha y lugar del flyer",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                        TextButton(
+                            onClick = { scope.launch { readFlyer(current, overwrite = true) } },
+                            enabled = !reading
+                        ) { Text("Leer datos") }
+                    }
+                }
 
                 OutlinedTextField(
                     value = title,
@@ -164,6 +239,15 @@ fun EventEditor(
                         isError = showErrors && hour == null,
                         onClick = { showTimePicker = true },
                         weight = 0.6f
+                    )
+                }
+                // Sin este aviso, "Guardar" parecía no hacer nada cuando faltaba la hora
+                val missing = listOfNotNull("fecha".takeIf { dateUtc == null }, "hora".takeIf { hour == null })
+                if (showErrors && missing.isNotEmpty()) {
+                    Text(
+                        "Para guardar elige la ${missing.joinToString(" y la ")} del evento",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error
                     )
                 }
 
@@ -231,7 +315,7 @@ fun EventEditor(
 }
 
 @Composable
-private fun FlyerPickerBox(image: String?, onPick: () -> Unit, onRemove: () -> Unit) {
+private fun FlyerPickerBox(image: String?, reading: Boolean, onPick: () -> Unit, onRemove: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -257,6 +341,21 @@ private fun FlyerPickerBox(image: String?, onPick: () -> Unit, onRemove: () -> U
                     Icon(Icons.Default.Delete, contentDescription = "Quitar flyer")
                 }
                 FilledTonalButton(onClick = onPick) { Text("Cambiar flyer") }
+            }
+            if (reading) {
+                Column(
+                    modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator(color = Color.White)
+                    Text(
+                        "Leyendo flyer…",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                }
             }
         } else {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
