@@ -25,8 +25,6 @@ data class EventUi(
     val description: String?,
     val imagePath: String?,
     val dateTimeMillis: Long,
-    val remainingText: String, // texto ya calculado para mostrar
-    val formattedDate: String, // fecha formateada en español
     val formattedDateTime: String // fecha y hora formateadas en español
 )
 
@@ -35,52 +33,29 @@ class EventViewModel(
     private val repository: EventRepository
 ) : AndroidViewModel(application) {
 
-    private val _events = MutableStateFlow<List<EventUi>>(emptyList())
-    val events: StateFlow<List<EventUi>> = _events.asStateFlow()
+    // WhileSubscribed: con la app en segundo plano se detienen la consulta y el reloj
+    val events: StateFlow<List<EventUi>> = repository.events
+        .map { list -> list.map { it.toUi() } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
-    private var lastRawEvents: List<EventEntity> = emptyList()
-
-    init {
-        // Observar base de datos
-        viewModelScope.launch {
-            repository.events.collect { list ->
-                lastRawEvents = list
-                recalculateRemaining()
-            }
+    // Reloj para la cuenta regresiva en vivo; la UI calcula el tiempo restante con este valor
+    val now: StateFlow<Long> = flow {
+        while (true) {
+            emit(System.currentTimeMillis())
+            delay(1000L)
         }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), System.currentTimeMillis())
 
-        // Ticker para actualizar countdown cada segundo
-        viewModelScope.launch {
-            while (true) {
-                delay(1000L)
-                recalculateRemaining()
-            }
-        }
-    }
-
-    private fun recalculateRemaining() {
-        val now = System.currentTimeMillis()
-        _events.value = lastRawEvents.map { entity ->
-            val diff = entity.dateTimeMillis - now
-            val remaining = if (diff <= 0) {
-                "Evento pasado"
-            } else {
-                DateFormatter.formatCountdownSpanish(entity.dateTimeMillis)
-            }
-            EventUi(
-                id = entity.id,
-                title = entity.title,
-                place = entity.place,
-                city = entity.city,
-                description = entity.description,
-                imagePath = entity.imagePath,
-                dateTimeMillis = entity.dateTimeMillis,
-                remainingText = remaining,
-                formattedDate = DateFormatter.formatDateSpanish(entity.dateTimeMillis),
-                formattedDateTime = DateFormatter.formatDateTimeSpanish(entity.dateTimeMillis)
-            )
-        }
-    }
+    private fun EventEntity.toUi() = EventUi(
+        id = id,
+        title = title,
+        place = place,
+        city = city,
+        description = description,
+        imagePath = imagePath,
+        dateTimeMillis = dateTimeMillis,
+        formattedDateTime = DateFormatter.formatDateTimeSpanish(dateTimeMillis)
+    )
 
     // Redibuja todas las instancias del widget con los datos actuales
     private suspend fun refreshWidget() {
@@ -142,7 +117,7 @@ class EventViewModel(
 
     fun updateEvent(eventUi: EventUi) {
         viewModelScope.launch {
-            val oldImagePath = lastRawEvents.find { it.id == eventUi.id }?.imagePath
+            val oldImagePath = events.value.find { it.id == eventUi.id }?.imagePath
             var imagePath = eventUi.imagePath
             if (imagePath != null && !File(imagePath).exists()) {
                 // It's a URI string, copy to internal; si falla la copia se conserva la imagen anterior

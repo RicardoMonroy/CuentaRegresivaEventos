@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.CuentaRegresivaEventos" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Oscuro para evitar el destello blanco al abrir la app -->
+    <style name="Theme.CuentaRegresivaEventos" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#0F0E11</item>
+    </style>
 </resources>

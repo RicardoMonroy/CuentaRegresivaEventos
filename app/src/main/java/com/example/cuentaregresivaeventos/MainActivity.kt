@@ -8,11 +8,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.cuentaregresivaeventos.data.EventDatabase
 import com.example.cuentaregresivaeventos.data.EventRepository
@@ -54,10 +54,13 @@ fun CountdownApp(repository: EventRepository, application: android.app.Applicati
     }
 
     val viewModel: EventViewModel = viewModel(factory = factory)
-    val eventsState by viewModel.events.collectAsState()
+    // WithLifecycle: deja de escuchar (y de correr el reloj) cuando la app no está visible
+    val eventsState by viewModel.events.collectAsStateWithLifecycle()
+    val nowState = viewModel.now.collectAsStateWithLifecycle()
 
     CountdownScreen(
         events = eventsState,
+        now = { nowState.value },
         onAddEvent = { title, place, city, description, imageUri, dateTimeMillis ->
             viewModel.addEvent(
                 title = title,

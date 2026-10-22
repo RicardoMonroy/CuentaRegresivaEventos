@@ -3,6 +3,8 @@ package com.example.cuentaregresivaeventos.util
 import java.text.SimpleDateFormat
 import java.util.*
 
+data class CountdownParts(val days: Long, val hours: Long, val minutes: Long, val seconds: Long)
+
 object DateFormatter {
     
     private val spanishMonths = arrayOf(
@@ -95,32 +97,15 @@ object DateFormatter {
     }
     
     /**
-     * Formatea el countdown en formato legible
-     * Ejemplo: "25 días, 14 horas, 30 minutos"
+     * Desglosa el tiempo restante para la cuenta regresiva en vivo; 0 si ya pasó
      */
-    fun formatCountdownSpanish(dateTimeMillis: Long): String {
-        val now = System.currentTimeMillis()
-        val diff = dateTimeMillis - now
-        
-        if (diff <= 0) return "Evento pasado"
-        
-        val totalSeconds = diff / 1000
-        val days = totalSeconds / (24 * 3600)
-        val hours = (totalSeconds % (24 * 3600)) / 3600
-        val minutes = (totalSeconds % 3600) / 60
-        
-        val parts = mutableListOf<String>()
-        
-        if (days > 0) {
-            parts.add("$days ${if (days == 1L) "día" else "días"}")
-        }
-        if (hours > 0) {
-            parts.add("$hours ${if (hours == 1L) "hora" else "horas"}")
-        }
-        if (minutes > 0 || parts.isEmpty()) {
-            parts.add("$minutes ${if (minutes == 1L) "minuto" else "minutos"}")
-        }
-        
-        return parts.joinToString(", ")
+    fun countdownParts(dateTimeMillis: Long, now: Long): CountdownParts {
+        val totalSeconds = maxOf(dateTimeMillis - now, 0L) / 1000
+        return CountdownParts(
+            days = totalSeconds / (24 * 3600),
+            hours = (totalSeconds % (24 * 3600)) / 3600,
+            minutes = (totalSeconds % 3600) / 60,
+            seconds = totalSeconds % 60
+        )
     }
 }
